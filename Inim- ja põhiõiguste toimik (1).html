@@ -1,0 +1,1683 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Inim- ja põhiõiguste toimik</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: "toimik" — vasakul registriga kaust (moodulid), paremal üks leht korraga; õigusviited monospace-märgistena, keelud ja piirangud templitena; mõisted punktiirjoonega, klõpsates hüpikaken */
+:root{
+  --paper:#EEF0F5; --sheet:#FFFFFF; --ink:#141C33; --muted:#586179; --line:#D6DAE5; --soft:#E4E7F0;
+  --accent:#3438A8; --accent-soft:#E6E7FA; --red:#B8332A; --red-soft:#FBE9E7; --green:#1F7A50; --green-soft:#E3F3EA; --amber:#9A6412; --amber-soft:#FBF0DC;
+  --shadow:rgba(20,28,51,.18);
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0E1220; --sheet:#161C2D; --ink:#E5E8F2; --muted:#9CA4BA; --line:#2A3247; --soft:#1E2538;
+  --accent:#9EA2FF; --accent-soft:#252A55; --red:#FF8478; --red-soft:#3A1E1D; --green:#5FCB97; --green-soft:#16332A; --amber:#F0B860; --amber-soft:#3A2D14; --shadow:rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0E1220; --sheet:#161C2D; --ink:#E5E8F2; --muted:#9CA4BA; --line:#2A3247; --soft:#1E2538;
+  --accent:#9EA2FF; --accent-soft:#252A55; --red:#FF8478; --red-soft:#3A1E1D; --green:#5FCB97; --green-soft:#16332A; --amber:#F0B860; --amber-soft:#3A2D14; --shadow:rgba(0,0,0,.5); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2rem,5vw,3.1rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.55rem,3.2vw,2.1rem);font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.18rem;font-weight:600}
+h4{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.lead{font-size:1.12rem;color:var(--muted);max-width:62ch}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+.cite{font-family:var(--f-mono);font-size:.78rem;font-weight:600;background:var(--accent-soft);color:var(--accent);padding:.1em .5em;border-radius:4px;white-space:nowrap}
+
+/* Terms + popover */
+.term{background:none;border:none;padding:0;margin:0;font:inherit;color:inherit;line-height:inherit;cursor:pointer;border-bottom:1.5px dotted var(--accent);border-radius:0;text-align:inherit}
+.term:hover{color:var(--accent)}
+.term[aria-expanded="true"]{background:var(--accent-soft);color:var(--accent)}
+#pop{position:absolute;z-index:50;width:min(360px,calc(100vw - 32px));background:var(--sheet);color:var(--ink);border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 14px 36px var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:8px;font-size:.94rem;line-height:1.5}
+#pop .ph{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#pop h4{font-size:1.08rem}
+#pop .x{background:none;border:none;cursor:pointer;font-family:var(--f-display);font-size:1.2rem;line-height:1;color:var(--muted);padding:2px 6px}
+#pop a{font-family:var(--f-display);font-weight:600;font-size:.88rem;color:var(--accent);text-decoration:none}
+#pop{max-height:min(72vh,560px);overflow:auto}
+#pop .sub{font-size:.85rem;color:var(--muted);line-height:1.4}
+#pop .lgs{display:flex;flex-direction:column;gap:6px}
+#pop .lg{display:block;padding:6px 8px;border-radius:6px;font-size:.93rem}
+#pop .lg.hit{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+#pop .lg b{font-family:var(--f-mono);font-size:.76rem;color:var(--accent);margin-right:6px}
+#pop .src2{font-size:.82rem;color:var(--muted)}
+#pop .sumnote{background:var(--amber-soft);border-radius:6px;padding:8px 10px;font-size:.92rem;display:flex;flex-direction:column;gap:4px}
+#pop .sumnote b{font-family:var(--f-display)}
+.term.ref{border-bottom-style:dashed}
+.cite .term{border-bottom-color:currentColor}
+
+/* App shell */
+.app{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:100vh}
+.rail{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);background:var(--sheet);padding:24px 14px 24px max(14px, env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:18px}
+.brand{font-family:var(--f-display);font-weight:800;font-size:1.05rem;line-height:1.2;padding:0 8px}
+.brand small{display:block;font-family:var(--f-mono);font-weight:400;font-size:.7rem;color:var(--muted);letter-spacing:.06em;margin-top:4px}
+.progress{padding:0 8px;display:flex;flex-direction:column;gap:6px}
+.bar{height:6px;background:var(--soft);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:grid;grid-template-columns:44px 1fr 16px;align-items:center;gap:6px;padding:8px;border-radius:8px;text-decoration:none;color:var(--ink);font-family:var(--f-display);font-size:.95rem;line-height:1.25}
+.nav a:hover{background:var(--soft)}
+.nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.nav .num{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+.nav a[aria-current="page"] .num{color:var(--accent)}
+.nav .dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line)}
+.nav .dot.done{background:var(--green);border-color:var(--green);box-shadow:inset 0 0 0 2px var(--sheet)}
+.nav .dot.none{border:none}
+.navgroup{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:12px 8px 4px}
+.themebtn{margin-top:auto;align-self:flex-start;background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-family:var(--f-display);font-size:.85rem;cursor:pointer;color:var(--muted)}
+
+main{padding-block:40px 80px;padding-left:max(16px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px));min-width:0}
+.view{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.view > header{display:flex;flex-direction:column;gap:12px}
+.block{display:flex;flex-direction:column;gap:14px}
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.grid > *{min-width:0}
+ul.ticks{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+ol.steps{margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:6px}
+
+.quote{border-left:3px solid var(--accent);padding:4px 0 4px 16px;display:flex;flex-direction:column;gap:6px}
+.quote .src{font-family:var(--f-mono);font-size:.76rem;color:var(--muted);letter-spacing:.02em}
+.quote p{font-size:1rem}
+.note{background:var(--amber-soft);border-radius:8px;padding:12px 14px;font-size:.93rem;display:flex;gap:10px}
+.note b{font-family:var(--f-display)}
+.note::before{content:"!";font-family:var(--f-display);font-weight:800;color:var(--amber);flex:none}
+.insight{background:var(--accent-soft);border-radius:8px;padding:14px 16px;font-size:.98rem}
+.insight b{font-family:var(--f-display)}
+.extra{border:1.5px dashed var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.extra > .eyebrow{color:var(--muted)}
+
+.stamp{display:inline-block;font-family:var(--f-mono);font-weight:600;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;border:2px solid currentColor;border-radius:4px;padding:3px 8px;transform:rotate(-3deg);white-space:nowrap}
+.stamp.red{color:var(--red)} .stamp.green{color:var(--green)} .stamp.amber{color:var(--amber)} .stamp.blue{color:var(--accent)}
+
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:600;font-size:.95rem;padding:9px 16px;border-radius:8px;border:1.5px solid var(--accent);background:var(--accent);color:var(--sheet);cursor:pointer;text-decoration:none}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.between{justify-content:space-between}
+
+.chip{font-family:var(--f-display);font-size:.88rem;padding:6px 12px;border-radius:99px;border:1.5px solid var(--line);background:var(--sheet);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.tag{font-family:var(--f-display);font-size:.82rem;padding:4px 10px;border-radius:99px;background:var(--soft)}
+
+/* Tables */
+.twrap{overflow-x:auto}
+table.info{border-collapse:collapse;width:100%;font-size:.93rem}
+table.info th,table.info td{border-bottom:1px solid var(--line);padding:10px 10px;text-align:left;vertical-align:top}
+table.info thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.info tbody th{font-family:var(--f-display);font-weight:600}
+
+/* Test */
+.qitem{display:flex;flex-direction:column;gap:10px}
+.qitem .q{font-family:var(--f-display);font-weight:600;font-size:1.02rem}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;padding:10px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);cursor:pointer;font-family:var(--f-body);font-size:.97rem;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt:disabled{cursor:default}
+.opt.ok{border-color:var(--green);background:var(--green-soft)}
+.opt.bad{border-color:var(--red);background:var(--red-soft)}
+.why{font-size:.93rem;padding:10px 14px;border-radius:8px;background:var(--soft)}
+.why b{font-family:var(--f-display)}
+
+/* Overview funnel */
+.funnel{display:flex;flex-direction:column;align-items:center;gap:6px}
+.layer{width:100%;display:grid;grid-template-columns:120px 1fr auto;gap:14px;align-items:center;text-align:left;padding:14px 18px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);cursor:pointer;text-decoration:none;color:var(--ink);transition:transform .15s,border-color .15s}
+.layer:hover{border-color:var(--accent);transform:translateY(-1px)}
+.layer .lv{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.layer h3{font-size:1.05rem}
+.layer p{font-size:.9rem;color:var(--muted)}
+.layer .go{font-family:var(--f-display);color:var(--accent);font-size:1.2rem}
+.funnel .arrow{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);text-align:center}
+
+/* Houses */
+.house{display:flex;flex-direction:column;gap:10px;border-top:4px solid var(--accent)}
+.house.coe{border-top-color:var(--amber)} .house.eu{border-top-color:var(--green)}
+.house ul{margin:0;padding-left:1.1em;font-size:.95rem}
+
+/* Chronology */
+.chrono{display:flex;flex-direction:column}
+.chrono .yr{display:grid;grid-template-columns:62px 18px 1fr;gap:12px;align-items:start}
+.chrono .y{font-family:var(--f-mono);font-weight:600;font-size:.9rem;color:var(--accent);text-align:right;padding-top:2px;font-variant-numeric:tabular-nums}
+.chrono .ln{display:flex;flex-direction:column;align-items:center;height:100%}
+.chrono .ln i{width:12px;height:12px;border-radius:50%;background:var(--sheet);border:2.5px solid var(--accent);margin-top:6px;flex:none}
+.chrono .ln::after{content:"";flex:1;width:2px;background:var(--line);min-height:12px}
+.chrono .yr:last-child .ln::after{display:none}
+.chrono .yr.ee .ln i{border-color:var(--green);background:var(--green)}
+.chrono .yr.ee .y{color:var(--green)}
+.chrono .ev{padding-bottom:16px;font-size:.95rem}
+.chrono .ev b{font-family:var(--f-display)}
+
+/* Status classifier */
+.lens{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lensbox{display:flex;flex-direction:column;gap:10px}
+.cats{display:flex;flex-direction:column;gap:6px}
+.cat{padding:10px 12px;border-radius:8px;border:1.5px dashed var(--line);font-family:var(--f-display);font-size:.93rem;color:var(--muted);transition:all .2s}
+.cat small{display:block;font-family:var(--f-body);font-size:.84rem}
+.cat.on{border-style:solid;border-color:var(--accent);background:var(--accent-soft);color:var(--ink)}
+
+/* PS cards */
+.pcard{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet)}
+.pcard.open{border-color:var(--accent)}
+.phead{text-align:left;cursor:pointer;background:none;border:none;padding:0;display:flex;flex-direction:column;gap:4px}
+.pcard .pn{font-family:var(--f-mono);font-weight:600;font-size:1.25rem;color:var(--accent)}
+.pcard .pt{font-family:var(--f-display);font-weight:600;font-size:.95rem}
+.pcard .pbody{display:flex;flex-direction:column;gap:8px;font-size:.93rem}
+.pcard .plain{color:var(--muted);font-style:italic}
+.pcard .mask{display:none}
+.hidenum .pcard:not(.open) .real{display:none}
+.hidenum .pcard:not(.open) .mask{display:inline}
+.chapters{display:flex;flex-wrap:wrap;gap:6px}
+.chapters span{font-family:var(--f-display);font-size:.82rem;padding:5px 10px;border-radius:6px;background:var(--soft)}
+.chapters span b{font-family:var(--f-mono);font-weight:600;margin-right:6px;color:var(--muted)}
+.chapters span.hl{background:var(--accent);color:var(--sheet)}
+.chapters span.hl b{color:inherit}
+
+/* Check scheme */
+.scheme{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;counter-reset:s}
+.sstep{text-align:left;cursor:pointer;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);display:flex;flex-direction:column;gap:4px}
+.sstep .k{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sstep[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+
+/* Ladder */
+.ladder{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;align-items:stretch}
+.rung{text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet)}
+.rung .lv{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rung .ttl{font-family:var(--f-display);font-weight:600}
+.rung[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.rung.intl{border-style:dashed}
+.gate{grid-column:1/-1;display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.75rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.gate::before,.gate::after{content:"";flex:1;height:1px;background:var(--line)}
+.courts{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.courts .c{padding:10px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);display:flex;flex-direction:column;gap:2px;min-width:0}
+.courts .c b{font-family:var(--f-display)}
+.courts .c span{font-size:.84rem;color:var(--muted)}
+.courts .ar{font-family:var(--f-display);color:var(--accent)}
+
+/* Matrix */
+.mwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--sheet)}
+table.matrix{border-collapse:collapse;width:100%;min-width:860px}
+.matrix th,.matrix td{border-bottom:1px solid var(--line);padding:8px;vertical-align:middle}
+.matrix thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:center;line-height:1.3;background:var(--soft)}
+.matrix thead th small{display:block;text-transform:none;letter-spacing:0;font-weight:400;font-size:.66rem}
+.matrix tbody th{text-align:left;font-family:var(--f-display);font-size:.93rem;font-weight:600;width:190px}
+.matrix tbody th .stamp{margin-top:6px;font-size:.6rem;padding:2px 6px}
+.matrix td{text-align:center}
+.mcell{font-family:var(--f-mono);font-size:.74rem;font-weight:600;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:6px;padding:6px;cursor:pointer;width:100%;line-height:1.3}
+.mcell:hover{border-color:var(--accent)}
+.mcell[aria-pressed="true"]{background:var(--accent);color:var(--sheet);border-color:var(--accent)}
+.mcell.seen:not([aria-pressed="true"]){background:var(--accent-soft)}
+.mempty{color:var(--line);font-family:var(--f-mono)}
+.mpanel{display:flex;flex-direction:column;gap:14px}
+.mpanel .arts{display:flex;flex-direction:column;gap:16px}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.legend > div{display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.legend .stamp{align-self:flex-start}
+
+/* Compare */
+table.cmp{border-collapse:collapse;width:100%;min-width:640px;font-size:.9rem}
+table.cmp th,table.cmp td{border-bottom:1px solid var(--line);padding:10px 8px;vertical-align:top}
+table.cmp thead th{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left}
+table.cmp tbody th{font-family:var(--f-display);font-weight:600;text-align:left;width:26%}
+table.cmp td{line-height:1.35}
+table.cmp td .nt{display:block;font-size:.82rem;color:var(--muted);margin-top:3px}
+.mk{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;font-style:normal;font-family:var(--f-display);font-weight:800;font-size:.8rem;flex:none}
+.mk.y{background:var(--green-soft);color:var(--green)}
+.mk.p{background:var(--amber-soft);color:var(--amber)}
+.mk.x{background:var(--soft);color:var(--muted);border:1px dashed var(--muted)}
+.mk.n{color:var(--line)}
+.cmpkey{gap:16px}
+.cmpkey span{display:inline-flex;align-items:center;gap:6px}
+.cmpcols{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px}
+.cmpcol{display:flex;flex-direction:column;gap:12px;padding:16px}
+.cmpcol .hd{display:flex;flex-direction:column;gap:2px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.cmpcol .hd b{font-family:var(--f-display);font-size:1rem;line-height:1.25}
+.cmpcol .quote p{font-size:.93rem}
+mark.lim{background:transparent;color:inherit}
+.hl mark.lim{background:var(--amber-soft);color:var(--ink);border-radius:3px;box-shadow:0 0 0 2px var(--amber-soft)}
+
+/* Wizard */
+.wiz{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.step{display:flex;flex-direction:column;gap:10px}
+.step .sl{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.95rem;cursor:pointer;line-height:1.4}
+.check input{margin-top:.25em;accent-color:var(--accent);width:17px;height:17px;flex:none}
+.verdict{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.verdict .vt{font-family:var(--f-display);font-weight:600;font-size:1.05rem;flex:1;min-width:220px}
+
+/* Timeline */
+.tl{display:flex;flex-direction:column}
+.tl .ev{display:grid;grid-template-columns:36px 1fr;gap:14px}
+.tl .pin{display:flex;flex-direction:column;align-items:center}
+.tl .pin i{width:28px;height:28px;border-radius:50%;border:2px solid var(--accent);background:var(--sheet);display:grid;place-items:center;font-family:var(--f-mono);font-size:.72rem;font-style:normal;font-weight:600;color:var(--accent);flex:none}
+.tl .pin::after{content:"";flex:1;width:2px;background:var(--line);min-height:14px}
+.tl .ev:last-child .pin::after{display:none}
+.tl .body{padding-bottom:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tl .evh{background:none;border:none;padding:0;text-align:left;cursor:pointer;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-family:var(--f-display);font-weight:600;font-size:1rem;padding-top:3px}
+.tl .more{font-size:.94rem}
+.tl .ev.open .pin i{background:var(--accent);color:var(--sheet)}
+.tl .ev.stop .pin i{border-color:var(--red);color:var(--red)}
+.tl .ev.stop.open .pin i{background:var(--red);color:var(--sheet)}
+
+/* Proportionality */
+.prop{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pstep{padding:14px;border-radius:8px;border:1.5px solid var(--line);display:flex;flex-direction:column;gap:6px;background:var(--sheet)}
+.pstep .k{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pstep.pass{border-color:var(--green);background:var(--green-soft)}
+.pstep.fail{border-color:var(--red);background:var(--red-soft)}
+.measures{display:flex;flex-wrap:wrap;gap:8px}
+
+/* Forms of action */
+.forms{display:grid;grid-template-columns:auto 1fr 1fr;gap:8px;align-items:stretch}
+.forms .hd{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:flex-end;padding:0 4px}
+.forms .side{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;padding:4px}
+.forms .f{padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);display:flex;flex-direction:column;gap:4px;font-size:.9rem}
+.forms .f b{font-family:var(--f-display);font-size:1rem}
+@media (max-width:560px){.forms{grid-template-columns:1fr}.forms .hd,.forms .side{display:none}}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.flow .s{flex:1 1 140px;padding:12px;border-radius:8px;background:var(--soft);display:flex;flex-direction:column;gap:4px;font-size:.88rem;min-width:0}
+.flow .s b{font-family:var(--f-display);font-size:.95rem}
+.flow .s .cite{align-self:flex-start}
+
+/* Court diagram */
+.court{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:10px;align-items:stretch}
+.court .party{text-align:left;cursor:pointer;padding:14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);display:flex;flex-direction:column;gap:4px}
+.court .party[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.court .judge{grid-column:2;grid-row:2;background:var(--ink);color:var(--paper);border-color:var(--ink);text-align:center;align-items:center;justify-content:center;cursor:default}
+.court .judge .cite{background:transparent;color:inherit;border:1px solid currentColor}
+.court .p-kaebaja{grid-column:1;grid-row:2}
+.court .p-vastustaja{grid-column:3;grid-row:2}
+.court .p-kolmas{grid-column:2;grid-row:1}
+.court .p-kaasatud{grid-column:2;grid-row:3}
+.court .ttl{font-family:var(--f-display);font-weight:600}
+@media (max-width:640px){.court{grid-template-columns:1fr 1fr}.court .judge{grid-column:1/-1;grid-row:1}.court .p-kaebaja{grid-column:1;grid-row:2}.court .p-vastustaja{grid-column:2;grid-row:2}.court .p-kolmas{grid-column:1;grid-row:3}.court .p-kaasatud{grid-column:2;grid-row:3}}
+
+/* Case scheme */
+.cs{display:flex;flex-direction:column;gap:12px}
+.csi{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1.1fr);gap:16px;padding:16px 18px;border-radius:var(--r);border:1px solid var(--line);background:var(--sheet)}
+.csi .n{font-family:var(--f-display);font-weight:800;font-size:1.6rem;color:var(--accent);line-height:1}
+.csi .ask{display:flex;flex-direction:column;gap:6px}
+.csi .ans{display:flex;flex-direction:column;gap:6px;padding-left:16px;border-left:2px solid var(--line);font-size:.94rem}
+.csi .ans .eyebrow{color:var(--green)}
+@media (max-width:720px){.csi{grid-template-columns:36px minmax(0,1fr)}.csi .ans{grid-column:2;padding-left:12px}}
+
+/* Glossary */
+.search{width:100%;max-width:420px;font:inherit;font-family:var(--f-display);padding:10px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink)}
+.search:focus{outline:none;border-color:var(--accent)}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.gitem{padding:14px 16px;border-radius:8px;border:1px solid var(--line);background:var(--sheet);display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+.gitem h4{font-size:1rem}
+.gitem a{font-family:var(--f-display);font-weight:600;font-size:.85rem;color:var(--accent);text-decoration:none}
+.letter{grid-column:1/-1;font-family:var(--f-display);font-weight:800;font-size:1.3rem;color:var(--accent);padding-top:8px}
+
+/* Notes */
+.notes{display:flex;flex-direction:column;gap:8px}
+.notes label{font-family:var(--f-display);font-weight:600}
+.notes textarea{width:100%;min-height:120px;resize:vertical;font:inherit;font-size:.95rem;padding:12px 14px;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);color:var(--ink);line-height:1.5;background-image:repeating-linear-gradient(transparent 0 calc(1.5em + 0px - 1px), var(--soft) calc(1.5em - 1px) 1.5em);background-position:0 12px;background-attachment:local}
+.notes textarea:focus{outline:none;border-color:var(--accent)}
+
+/* Final test & cards */
+.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line)}
+.tabs button{background:none;border:none;border-bottom:2.5px solid transparent;padding:10px 14px;font-family:var(--f-display);font-weight:600;cursor:pointer;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+.tprog{display:flex;gap:4px}
+.tprog i{flex:1;height:5px;border-radius:99px;background:var(--soft)}
+.tprog i.ok{background:var(--green)} .tprog i.bad{background:var(--red)} .tprog i.cur{background:var(--accent)}
+.score{font-family:var(--f-display);font-weight:800;font-size:3rem;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.flashgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.flash{perspective:900px;height:180px;cursor:pointer;background:none;border:none;padding:0;text-align:left}
+.flash .in{position:relative;display:block;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+.flash[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flash .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:8px;border:1.5px solid var(--line);background:var(--sheet);padding:16px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.flash .front{justify-content:center}
+.flash .front b{font-family:var(--f-display);font-size:1.15rem}
+.flash .back{transform:rotateY(180deg);background:var(--accent-soft);border-color:var(--accent);font-size:.9rem;line-height:1.45}
+.done-btn{align-self:flex-start}
+.pager{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:20px}
+
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--sheet)}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;height:auto;flex-direction:row;align-items:center;overflow-x:auto;overflow-y:hidden;border-right:none;border-bottom:1px solid var(--line);padding:10px max(16px, env(safe-area-inset-right,0px)) 10px max(16px, env(safe-area-inset-left,0px));gap:12px}
+  .brand,.progress,.navgroup,.themebtn{display:none}
+  .nav{flex-direction:row;gap:4px}
+  .nav a{grid-template-columns:auto auto;white-space:nowrap;padding:6px 10px;font-size:.88rem}
+  .nav .dot{display:none}
+  main{padding-block:24px 64px}
+  .layer{grid-template-columns:1fr auto}
+  .layer .lv{grid-column:1/-1}
+  .sheet{padding:18px}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <aside class="rail" aria-label="Moodulid">
+    <div class="brand">Inim- ja põhiõigused<small>SKA · KS240 · õppetoimik</small></div>
+    <div class="progress"><div class="row between small"><span class="muted">Läbitud</span><span id="progTxt" class="muted"></span></div><div class="bar"><i id="progBar"></i></div></div>
+    <nav class="nav" id="nav"></nav>
+    <button class="themebtn" id="themeBtn" type="button">Vaheta teemat</button>
+  </aside>
+
+  <main id="main">
+
+  <!-- ÜLEVAADE -->
+  <section class="view" data-view="ylevaade">
+    <header>
+      <span class="eyebrow">Õppetoimik · materjal 19.11.2024</span>
+      <h1>Inim- ja põhiõigused</h1>
+      <p class="lead">Kogu materjal ühes kohas: kust õigused tulevad, kes neid tagab, kuidas neid tohib piirata ja kuidas isik saab oma õigusi kaitsta. Punktiirjoonega sõnad on mõisted: klõpsa neil, et näha selgitust.</p>
+    </header>
+
+    <div class="block">
+      <h2>Õiguste neli kihti</h2>
+      <p class="muted small">Klõpsa kihil, et minna vastavasse moodulisse. Ülevalt alla liikudes muutub õigus konkreetsemaks.</p>
+      <div class="funnel">
+        <a class="layer" href="#raamistik"><span class="lv">Globaalne</span><div><h3>ÜRO</h3><p>Inimõiguste ülddeklaratsioon, paktid, piinamisvastane ja pagulasseisundi konventsioon, lapse õiguste konventsioon</p></div><span class="go">→</span></a>
+        <span class="arrow">↓ osalisriigid peavad kohustused realiseerima riigisiseses õiguses</span>
+        <a class="layer" href="#raamistik" style="max-width:92%"><span class="lv">Regionaalne</span><div><h3>Euroopa Nõukogu ja Euroopa Liit</h3><p>Inimõiguste ja põhivabaduste kaitse konventsioon (EIÕK) + protokollid; Liidu põhiõiguste harta</p></div><span class="go">→</span></a>
+        <span class="arrow">↓ PS § 3: üldtunnustatud rahvusvaheline õigus on Eesti õigussüsteemi osa</span>
+        <a class="layer" href="#pohiseadus" style="max-width:84%"><span class="lv">Riigisisene</span><div><h3>Eesti Vabariigi põhiseadus</h3><p>II peatükk: põhiõigused, vabadused ja kohustused</p></div><span class="go">→</span></a>
+        <span class="arrow">↓ õigusi tohib piirata ainult seaduse alusel</span>
+        <a class="layer" href="#hms" style="max-width:76%"><span class="lv">Menetlus</span><div><h3>HMS ja HKMS</h3><p>Kuidas amet otsustab ja kuidas kohus seda kontrollib</p></div><span class="go">→</span></a>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="sheet block">
+        <span class="eyebrow">Kaks mõistet, üks sisu</span>
+        <h3>Inimõigus või põhiõigus?</h3>
+        <div class="twrap"><table class="info">
+          <thead><tr><th></th><th>Inimõigus</th><th>Põhiõigus</th></tr></thead>
+          <tbody>
+            <tr><th>Tasand</th><td>rahvusvaheline õigus</td><td>riigi põhiseadus</td></tr>
+            <tr><th>Allikas</th><td>ülddeklaratsioon, paktid, konventsioonid</td><td>PS II peatükk</td></tr>
+            <tr><th>Kes tagab</th><td>osalisriik; järelevalve ÜRO komiteed, EIK</td><td>kõik võimuharud ja omavalitsused (PS § 14)</td></tr>
+            <tr><th>Kaitse</th><td>pärast riigisiseste võimaluste ammendamist</td><td>vaie, kohus, õiguskantsler</td></tr>
+          </tbody>
+        </table></div>
+        <p class="small muted">Sisu kattub suures osas: põhiõigused on inimõiguste riigisisene vorm.</p>
+      </div>
+      <div class="sheet block">
+        <span class="eyebrow">Mis on siduv?</span>
+        <h3>Deklaratsioon või leping?</h3>
+        <p class="small"><b>Deklaratsioon</b> (nt Inimõiguste ülddeklaratsioon) on põhimõtete kokkulepe, mitte formaalne leping. Selle mõju tuleneb sellest, et paljud sätted on saanud rahvusvahelise õiguse üldtunnustatud normideks.</p>
+        <p class="small"><b>Pakt, konventsioon, protokoll</b> on lepingud. Need seovad riiki, kes on lepingu ratifitseerinud. Pakt ja konventsioon tähendavad õiguslikult sama asja.</p>
+        <p class="small"><b>Protokoll</b> täiendab olemasolevat lepingut ja seob ainult riike, kes on ka protokolli ratifitseerinud.</p>
+      </div>
+    </div>
+
+    <div class="grid g3">
+      <a class="sheet block" href="#raamistik" style="text-decoration:none;color:inherit"><span class="eyebrow">I osa</span><h3>Üldalused</h3><p class="small muted">Rahvusvaheline raamistik, isiku õiguslik seisund, õiguse üldpõhimõtted, põhiseadus, õiguskaitsevahendid.</p></a>
+      <a class="sheet block" href="#maatriks" style="text-decoration:none;color:inherit"><span class="eyebrow">I osa · 3</span><h3>Viis põhiõigust</h3><p class="small muted">Inimväärikus, vabadus, võrdne kohtlemine, perekonnaelu ja usuvabadus — kõik aktid ühes maatriksis.</p></a>
+      <a class="sheet block" href="#hms" style="text-decoration:none;color:inherit"><span class="eyebrow">II osa</span><h3>Menetlusraamistik</h3><p class="small muted">Haldusmenetluse põhimõtted ja halduskohtumenetluse osalised ning volitused.</p></a>
+    </div>
+
+    <div class="insight"><b>Kuidas kasutada.</b> Liigu moodulites järjest või hüppa menüüst. Iga mooduli lõpus on koht oma märkmete jaoks; need salvestuvad sinu brauserisse. <a href="#kaasus">Kaasuse skeem</a> seob kõik moodulid üheks lahenduskäiguks, <a href="#vordlus">kõrvutusvaates</a> näed ühe õiguse kõiki akte korraga, <a href="#sonastik">sõnastikus</a> on kõik mõisted koos ja mõistekaartidega saad korrata.</div>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 1 RAAMISTIK -->
+  <section class="view" data-view="raamistik" hidden>
+    <header>
+      <span class="eyebrow">I · 1 Riigid rahvusvahelise õiguse kontekstis</span>
+      <h2>Globaalne ja regionaalne maailmakorraldus</h2>
+      <p class="lead">Ainus globaalne rahvusvaheline katusorganisatsioon on ÜRO. Tema peamine missioon on säilitada rahvusvaheline rahu ja julgeolek. Lisaks on palju regionaalseid organisatsioone: Euroopa Liit, Euroopa Nõukogu, Aafrika Liit, Araabia Liiga, Lõuna-Ameerika Riikide Liit jt.</p>
+    </header>
+
+    <div class="grid g2">
+      <div class="sheet block">
+        <h3>ÜRO viis peamist ülesannet</h3>
+        <ul class="ticks">
+          <li>säilitada rahvusvaheline rahu ja julgeolek</li>
+          <li>kaitsta inimõigusi</li>
+          <li>toimetada kohale humanitaarabi</li>
+          <li>julgustada ja toetada jätkusuutlikku arengut</li>
+          <li>hoida ja tugevdada rahvusvahelist õigust</li>
+        </ul>
+      </div>
+      <div class="sheet block">
+        <h3>ÜRO olulisemad katusõigusaktid</h3>
+        <ul class="ticks">
+          <li>Inimõiguste ülddeklaratsioon <span class="cite">IÕÜD</span></li>
+          <li>Kodaniku- ja poliitiliste õiguste rahvusvaheline pakt <span class="cite">KPÕRP</span></li>
+          <li>Majanduslike, sotsiaalsete ja kultuuriliste õiguste rahvusvaheline pakt <span class="cite">MSKÕRP</span></li>
+        </ul>
+        <p class="small muted">Koos nimetatakse neid rahvusvaheliseks inimõiguste billiks. ÜRO allorganisatsioone on palju: Maailma Terviseorganisatsioon, UNESCO, Rahvusvaheline Tsiviillennunduse Organisatsioon, Rahvusvaheline Rekonstrueerimis- ja Arengupank jt.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>Kolm maja: kelle akt on kelle oma?</h3>
+      <p class="small muted">Euroopa Nõukogu ja Euroopa Liit on eri organisatsioonid, millel on eri aktid ja eri kohtud. Neid aetakse sageli segi.</p>
+      <div class="grid g3">
+        <div class="sheet house"><span class="eyebrow">Globaalne</span><h4>ÜRO</h4><ul><li>Inimõiguste ülddeklaratsioon</li><li>Kodaniku- ja poliitiliste õiguste pakt</li><li>Piinamisvastane konventsioon</li><li>Pagulasseisundi konventsioon (+1967 protokoll)</li><li>Lapse õiguste konventsioon</li></ul><p class="small muted">Järelevalve: ÜRO komiteed</p></div>
+        <div class="sheet house coe"><span class="eyebrow" style="color:var(--amber)">Regionaalne · 46 riiki</span><h4>Euroopa Nõukogu</h4><ul><li>Inimõiguste ja põhivabaduste kaitse konventsioon (EIÕK)</li><li>Protokoll nr 4, protokoll nr 7</li></ul><p class="small muted">Järelevalve: Euroopa Inimõiguste Kohus (Strasbourg)</p></div>
+        <div class="sheet house eu"><span class="eyebrow" style="color:var(--green)">Regionaalne · 27 riiki</span><h4>Euroopa Liit</h4><ul><li>Liidu põhiõiguste harta</li><li>Isikute jaotus: liikmesriigi, teise liikmesriigi ja kolmanda riigi kodanikud</li></ul><p class="small muted">Järelevalve: Euroopa Liidu Kohus (Luxembourg)</p></div>
+      </div>
+    </div>
+
+    <div class="sheet block">
+      <h3>Ajajoon: aktid ja Eesti</h3>
+      <p class="small muted">Sinised on aktid, rohelised Eesti liitumised.</p>
+      <div class="chrono" id="chrono"></div>
+    </div>
+
+    <div class="insight"><b>Miks see oluline on?</b> Rahvusvahelise õiguse aktidega võetud kohustused inimõiguste tagamisel on osalisriigid kohustatud realiseerima oma riigisiseses õiguses. Eesti ametnik rakendab seega korraga Eesti seadust, põhiseadust ja välislepinguid. PS § 123 järgi kohaldatakse vastuolu korral Riigikogu ratifitseeritud välislepingut.</div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 2.1 SEISUND -->
+  <section class="view" data-view="seisund" hidden>
+    <header>
+      <span class="eyebrow">I · 2.1 Isikute õiguslik seisund</span>
+      <h2>Kodanik või välismaalane?</h2>
+      <p class="lead">Inimõigused tulenevad ainuüksi inimeseks olemisest: need on olemuselt globaalsed ja neist ei saa loobuda. Isiku õiguslik seisund riigis sõltub aga kodakondsusest.</p>
+    </header>
+
+    <div class="quote"><span class="src">Mõiste</span><p><b>Kodakondsus</b> on isiku püsiv õiguslik side konkreetse riigiga vastastikuste õiguste ja kohustuste kaudu. Riik otsustab ühepoolselt oma õigusaktides, keda ta loeb oma kodanikuks. Isikul valikuvõimalus puudub.</p></div>
+
+    <div class="sheet block">
+      <h3>Vali isik ja vaata teda kahe läätse kaudu</h3>
+      <p class="small muted">Vaatepunkt on Eesti oma.</p>
+      <div class="row" id="personChips"></div>
+      <div class="lens">
+        <div class="lensbox"><span class="eyebrow">Rahvusvahelise õiguse lääts</span><div class="cats" id="lensIntl"></div></div>
+        <div class="lensbox"><span class="eyebrow">Euroopa Liidu õiguse lääts</span><div class="cats" id="lensEu"></div></div>
+      </div>
+      <p class="insight" id="personNote"></p>
+    </div>
+
+    <div class="block">
+      <h3>Kolm üldtunnustatud põhimõtet</h3>
+      <div class="grid g3">
+        <div class="sheet block"><span class="stamp blue">Isiku õigus</span><p>Igal isikul on õigus elada oma kodakondsusjärgses riigis ja riigil on kohustus seda võimaldada.</p></div>
+        <div class="sheet block"><span class="stamp amber">Riigi õigus</span><p>Igal riigil on suveräänne õigus kontrollida välismaalaste saabumist, riigis viibimist ja vajadusel tagada lahkumine sunni kohaldamisega.</p></div>
+        <div class="sheet block"><span class="stamp green">Piirang</span><p>Riik võib ise seda suveräänset õigust piirata välislepingutega (nt EIÕK protokollid, pagulasseisundi konventsioon).</p></div>
+      </div>
+    </div>
+
+    <div class="grid g2">
+      <div class="quote"><span class="src">PS § 9</span><p>Põhiseaduses loetletud kõigi ja igaühe õigused, vabadused ja kohustused on võrdselt nii Eesti kodanikel kui ka Eestis viibivatel välisriikide kodanikel ja kodakondsuseta isikutel.</p></div>
+      <div class="quote"><span class="src">PS § 55</span><p>Eestis viibivad teiste riikide kodanikud ja kodakondsuseta isikud on kohustatud järgima Eesti põhiseaduslikku korda.</p></div>
+    </div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile</span>
+      <h3>„Igaüks“ või „kodanik“? Loe sõnastust</h3>
+      <p class="small">Põhiseaduse sõnastus ütleb, kellele õigus kuulub. Kui sätes on <b>igaüks</b>, <b>kõik</b> või <b>kedagi</b>, kehtib see ka välismaalasele (PS § 9). Kui sätes on <b>Eesti kodanik</b>, on õigus ainult kodanikul.</p>
+      <div class="twrap"><table class="info">
+        <thead><tr><th>Igaühe õigus</th><th>Ainult Eesti kodaniku õigus</th></tr></thead>
+        <tbody>
+          <tr><td>Piinamise keeld <span class="cite">§ 18</span></td><td>Eesti kodanikku ei tohi Eestist välja saata ega takistada Eestisse asumast <span class="cite">§ 36</span></td></tr>
+          <tr><td>Õigus vabadusele <span class="cite">§ 20</span></td><td>Erakondadesse kuulumine <span class="cite">§ 48</span></td></tr>
+          <tr><td>Perekonna- ja eraelu puutumatus <span class="cite">§ 26</span></td><td>Hääleõigus Riigikogu valimistel <span class="cite">§ 57</span></td></tr>
+          <tr><td>Usuvabadus <span class="cite">§ 40</span>, kohtusse pöördumine <span class="cite">§ 15</span></td><td></td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Sellest tuleneb oluline vahe: Eesti kodanikku ei saa välja saata, välismaalast saab, kuid ainult rahvusvahelise õiguse tagatisi järgides (vt <a href="#valjasaatmine">3.2</a>).</p>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 2.2 PÕHIMÕTTED -->
+  <section class="view" data-view="pohimotted" hidden>
+    <header>
+      <span class="eyebrow">I · 2.2 Õiguse üldpõhimõtted</span>
+      <h2>Õigus heale haldusele</h2>
+      <p class="lead">Euroopas on üldtunnustatud põhiõigus heale haldusele. See on katusmõiste, mille alla kuulub terve rida põhimõtteid. Neli neist tuleb osata defineerida.</p>
+    </header>
+
+    <div class="grid g2">
+      <div class="sheet block"><span class="cite" style="align-self:flex-start">Proportsionaalsus</span><p>Nii seaduse kehtestamisel kui rakendamisel tuleb valida meede, mis on isikut võimalikult vähe koormav, kuid mis veel aitab kaasa soovitud eesmärgi saavutamisele.</p><p class="small muted">Näide: kui ametis registreerimise kohustus tagab, et isik ei kao, ei tohi teda kinni pidada.</p></div>
+      <div class="sheet block"><span class="cite" style="align-self:flex-start">Õiguskindlus</span><p>Isik saab mõistlikult eeldada, et menetluse alustamise või sündmuse toimumise ajal kehtinud õigust ei muudeta talle halvemas suunas.</p><p class="small muted">Näide: taotlus esitati vanade nõuete ajal; menetluse käigus karmistunud nõudeid sellele ei kohaldata.</p></div>
+      <div class="sheet block"><span class="cite" style="align-self:flex-start">Võrdne kohtlemine</span><p>Samasugustel asjaoludel tuleb kohelda isikuid samamoodi.</p><p class="small muted">Näide: kaks samades oludes taotlejat peavad saama sama otsuse, kui erinevuseks pole mõistlikku põhjust.</p></div>
+      <div class="sheet block"><span class="cite" style="align-self:flex-start">Õiguspärane ootus</span><p>Isikul on õigus kasutada talle riigi otsusega antud õigusi mõistlikus ootuses, et otsuses toodu ka kehtima jääb.</p><p class="small muted">Näide: viieks aastaks antud luba ei tühistata aasta pärast põhjuseta, kui isik on selle peale oma elu korraldanud.</p></div>
+    </div>
+
+    <div class="block">
+      <h4>Hea halduse põhimõtte alla kuuluvad veel</h4>
+      <div class="row">
+        <span class="tag">õigus olla ära kuulatud</span><span class="tag">menetlus mõistliku aja jooksul</span><span class="tag">menetluse tulemuslikkus ja tõhusus</span><span class="tag">erapooletu menetlus</span><span class="tag">ligipääs oma andmetele</span><span class="tag">kohustus otsuseid põhjendada</span><span class="tag">hüvitis ametiasutuse tekitatud kahju eest</span>
+      </div>
+    </div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile</span>
+      <h3>Kus põhimõtted seaduses kirjas on</h3>
+      <p class="small">Põhimõtted ei ole ainult teooria: igaühe taga on konkreetne säte, millele kaasuses viidata.</p>
+      <div class="twrap"><table class="info">
+        <thead><tr><th>Põhimõte</th><th>Kus see avaldub</th></tr></thead>
+        <tbody>
+          <tr><th>Hea haldus</th><td>EL põhiõiguste harta art 41 „Õigus heale haldusele“</td></tr>
+          <tr><th>Proportsionaalsus</th><td>HMS § 3 lg 2 (kohane, vajalik, proportsionaalne); PS § 11 (demokraatlikus ühiskonnas vajalik)</td></tr>
+          <tr><th>Õiguskindlus</th><td>HMS § 5 lg 5 (menetluse alguses kehtinud normid)</td></tr>
+          <tr><th>Võrdne kohtlemine</th><td>PS § 12; EIÕK art 14; KPÕRP art 26</td></tr>
+          <tr><th>Seaduslikkus</th><td>PS § 3; HMS § 3 lg 1 (piirata ainult seaduse alusel)</td></tr>
+          <tr><th>Ärakuulamine</th><td>HMS § 40</td></tr>
+          <tr><th>Põhjendamine</th><td>HMS § 56 (haldusakti põhjendamine)</td></tr>
+          <tr><th>Mõistlik aeg, tõhusus</th><td>HMS § 5 lg 2 ja 4; HKMS § 2 lg 2</td></tr>
+          <tr><th>Hüvitis kahju eest</th><td>riigivastutuse seadus; HKMS § 5 lg 1 p 4</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 2.3 PÕHISEADUS -->
+  <section class="view" data-view="pohiseadus" hidden>
+    <header>
+      <span class="eyebrow">I · 2.3 Põhiseadusest tulenev õiguskord</span>
+      <h2>Põhiseadus</h2>
+      <p class="lead">Põhiseadus võeti vastu 1992. aasta 28. juuni rahvahääletusel. Preambul viitab Eesti rahva riikliku enesemääramise õigusele ja iseseisvuse väljakuulutamisele 24. veebruaril 1918.</p>
+    </header>
+
+    <div class="block">
+      <h3>Põhiseaduse 15 peatükki</h3>
+      <div class="chapters">
+        <span class="hl"><b>I</b>Üldsätted</span><span class="hl"><b>II</b>Põhiõigused, vabadused ja kohustused</span><span><b>III</b>Rahvas</span><span><b>IV</b>Riigikogu</span><span><b>V</b>Vabariigi President</span><span><b>VI</b>Vabariigi Valitsus</span><span><b>VII</b>Seadusandlus</span><span><b>VIII</b>Rahandus ja riigieelarve</span><span><b>IX</b>Välissuhted ja välislepingud</span><span><b>X</b>Riigikaitse</span><span><b>XI</b>Riigikontroll</span><span><b>XII</b>Õiguskantsler</span><span><b>XIII</b>Kohus</span><span><b>XIV</b>Kohalik omavalitsus</span><span><b>XV</b>Põhiseaduse muutmine</span>
+      </div>
+      <p class="small muted">Esile tõstetud peatükid on materjali fookuses.</p>
+    </div>
+
+    <div class="block">
+      <h3>Olulised paragrahvid</h3>
+      <p class="small muted">Klõpsa kaardil, et näha sätte teksti ja selle tähendust lihtsas keeles.</p>
+      <div class="row"><button class="chip" id="psHide" aria-pressed="false">Peida numbrid (treeni)</button><button class="chip" id="psOpenAll" aria-pressed="false">Ava kõik</button></div>
+      <div class="grid g3" id="psCards"></div>
+    </div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile · kaasuse tööriist</span>
+      <h3>Kas põhiõiguse piiramine on lubatud? Kontrollskeem</h3>
+      <p class="small">Põhiõiguse riivet kontrollitakse alati samas järjekorras. Klõpsa astmel. Skeem tuleneb PS § 3 ja § 11 ning HMS § 3 sätetest.</p>
+      <div class="scheme" id="scheme"></div>
+      <div class="sheet block" id="schemeInfo"></div>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 2.4 KAITSE -->
+  <section class="view" data-view="kaitse" hidden>
+    <header>
+      <span class="eyebrow">I · 2.4 Õiguskaitsevahendid</span>
+      <h2>Kuidas isik oma õigusi kaitseb</h2>
+      <p class="lead">Kõigepealt riigi sees, alles seejärel rahvusvahelisel tasandil. Klõpsa astmel.</p>
+    </header>
+    <div class="ladder" id="ladder"></div>
+    <div class="sheet block" id="ladderInfo"></div>
+    <div class="quote"><span class="src">PS § 15</span><p>Igaühel on õigus pöörduda oma õiguste ja vabaduste rikkumise korral kohtusse. Igaüks võib oma kohtuasja läbivaatamisel nõuda mis tahes asjassepuutuva seaduse, muu õigusakti või toimingu põhiseadusevastaseks tunnistamist.</p></div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile</span>
+      <h3>Eesti kohtusüsteem haldusasjades</h3>
+      <div class="courts">
+        <div class="c"><b>Halduskohus</b><span>I aste · Tallinn, Tartu</span></div><span class="ar">→</span>
+        <div class="c"><b>Ringkonnakohus</b><span>II aste · apellatsioon</span></div><span class="ar">→</span>
+        <div class="c"><b>Riigikohus</b><span>III aste · kassatsioon</span></div><span class="ar">→</span>
+        <div class="c" style="border-style:dashed"><b>EIK / ÜRO komitee</b><span>pärast riigisisest lõppotsust</span></div>
+      </div>
+      <div class="grid g3" style="margin-top:6px">
+        <div class="block"><span class="cite" style="align-self:flex-start">30 päeva</span><p class="small">Vaide esitamise tähtaeg (HMS § 75) ja tühistamiskaebuse tähtaeg halduskohtusse (HKMS § 46).</p></div>
+        <div class="block"><span class="cite" style="align-self:flex-start">4 kuud</span><p class="small">Aeg Euroopa Inimõiguste Kohtusse pöördumiseks pärast lõplikku riigisisest otsust.</p></div>
+        <div class="block"><span class="cite" style="align-self:flex-start">Tasuta</span><p class="small">Õiguskantsleri poole pöördumine. Õiguskantsler kontrollib ka ametiasutuste tegevust ja kinnipidamiskohti.</p></div>
+      </div>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 3 MAATRIKS -->
+  <section class="view" data-view="maatriks" hidden>
+    <header>
+      <span class="eyebrow">I · 3 Inim- ja põhiõigused</span>
+      <h2>Põhiõiguste maatriks</h2>
+      <p class="lead">Üks õigus, mitu akti. Read on õigused, veerud on aktid. Klõpsa lahtril, et lugeda sätte teksti. Tempel näitab, kas ja kuidas õigust tohib piirata.</p>
+    </header>
+    <div class="mwrap"><table class="matrix" id="matrix"></table></div>
+    <div class="sheet mpanel" id="mpanel"></div>
+
+    <div class="sheet block">
+      <h3>Templite tähendus</h3>
+      <div class="legend">
+        <div><span class="stamp red">Absoluutne</span><span>Piirata ei tohi kunagi: ei julgeoleku huvides ega erakorralises olukorras. Sättel puudub piiranguklausel.</span></div>
+        <div><span class="stamp amber">Ammendavad erandid</span><span>Piirata tohib ainult sättes loetletud juhtudel. Uusi aluseid juurde mõelda ei saa.</span></div>
+        <div><span class="stamp green">Piiratav</span><span>Piirata tohib seaduse alusel legitiimsel eesmärgil, kui see on demokraatlikus ühiskonnas vajalik.</span></div>
+        <div><span class="stamp blue">Diskrimineerimiskeeld</span><span>Läbiv põhimõte: kõiki teisi õigusi tuleb tagada ilma diskrimineerimiseta.</span></div>
+      </div>
+    </div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile</span>
+      <h3>Kuidas maatriksit kaasuses kasutada</h3>
+      <ol class="steps small">
+        <li>Leia, millist õigust olukord puudutab (rida).</li>
+        <li>Alusta põhiseadusest (PS veerg): kas säte kaitseb ka välismaalast?</li>
+        <li>Lisa EIÕK artikkel, sest selle rikkumise korral saab pöörduda EIK-sse.</li>
+        <li>Kui asi puudutab EL õiguse rakendamist (nt varjupaik, viisad), lisa harta artikkel.</li>
+        <li>Erijuhtudel lisa eriakt: lapse puhul LÕK, pagulase puhul pagulasseisundi konventsioon, väljasaatmisel piinamisvastane konventsioon.</li>
+      </ol>
+    </div>
+    <div class="note"><span><b>Materjali kohta.</b> Põhiõiguste harta artiklid on materjalis „Euroopa põhiseaduse lepingu“ numeratsiooniga (II-61 jne). Kehtiva harta numeratsioon on sulgudes. Lõigus 3.2 on materjalis korratud PS § 18; isikuvabaduse põhisäte on PS § 20.</span></div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 3 VÕRDLUS -->
+  <section class="view" data-view="vordlus" hidden>
+    <header>
+      <span class="eyebrow">I · 3 Inim- ja põhiõigused</span>
+      <h2>Kõrvutusvaade</h2>
+      <p class="lead">Vali õigus ja vaata kõiki akte korraga. Ülal on tabel selle kohta, mille poolest aktid erinevad. All on sätete tekstid kõrvuti, piirangut väljendavad sõnad on esile tõstetud.</p>
+    </header>
+    <div class="row" id="cmpRights"></div>
+
+    <div class="sheet block">
+      <div class="row between"><h3 id="cmpTitle"></h3><span id="cmpStamp"></span></div>
+      <div class="twrap"><table class="cmp" id="cmpTable"></table></div>
+      <div class="row small muted cmpkey"><span><i class="mk y">✓</i> on olemas</span><span><i class="mk p">≈</i> osaliselt või teistmoodi</span><span><i class="mk x">?</i> on mujal, materjalis ei ole</span><span><i class="mk n">—</i> ei ole</span></div>
+    </div>
+    <p class="insight" id="cmpInsight"></p>
+
+    <div class="block">
+      <div class="row between">
+        <h3>Tekstid kõrvuti</h3>
+        <button class="chip" id="cmpHl" aria-pressed="true">Tõsta piirangud esile</button>
+      </div>
+      <div class="row" id="cmpCols"></div>
+      <div class="cmpcols" id="cmpTexts"></div>
+      <p class="small muted">Kui kõik veerud ei mahu ekraanile, keri külgsuunas. Veerge saab peita ülal olevate nuppudega, näiteks jäta alles ainult EIÕK ja PS.</p>
+    </div>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 3.1 PAGULANE -->
+  <section class="view" data-view="pagulane" data-la="PAG" hidden>
+    <header>
+      <span class="eyebrow">I · 3.1 Pagulasseisundi konventsioon ja piinamisvastane konventsioon</span>
+      <h2>Kes on pagulane?</h2>
+      <p class="lead">Pagulasseisundi konventsiooni art 1 töötab kolmes etapis: A määrab, kes on pagulane, C ütleb, millal kaitse lõpeb, ja F, keda ei kaitsta üldse. Vali kaasus või märgi asjaolud ise.</p>
+    </header>
+    <div class="row" id="caseChips"></div>
+    <div class="sheet block"><span class="eyebrow">Kaasus</span><p id="caseText" style="font-size:1.05rem"></p></div>
+    <div class="wiz">
+      <div class="sheet step"><span class="sl">Etapp A · kaasamine (kõik peavad olema täidetud)</span><div id="stepA"></div></div>
+      <div class="sheet step"><span class="sl">Etapp C · lõppemine (piisab ühest)</span><div id="stepC"></div></div>
+      <div class="sheet step"><span class="sl">Etapp F · välistamine (piisab ühest)</span><div id="stepF"></div></div>
+    </div>
+    <div class="sheet verdict" id="verdict"></div>
+    <div class="insight"><b>Refoulement'i keeld on laiem kui pagulasstaatus.</b> Piinamisvastase konventsiooni art 3 järgi ei tohi osalisriik ühtki isikut välja või tagasi saata ega välja anda, kui on põhjendatud alus arvata, et seal võib teda ähvardada piinamine. See kehtib ka siis, kui isik ei ole pagulane või on art 1F alusel kaitsest välistatud.</div>
+    <div class="note"><span><b>Topeltkodakondsus.</b> Kui isikul on mitu kodakondsust, on kodakondsusjärgne riik iga riik, mille kodanik ta on. Kaitseta jäetuks ei loeta isikut, kes on mõjuva põhjuseta jätnud kasutamata mõne kodakondsusjärgse riigi kaitse.</span></div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile</span>
+      <h3>Kolm kaitsetaset</h3>
+      <div class="twrap"><table class="info">
+        <thead><tr><th></th><th>Pagulasstaatus</th><th>Täiendav kaitse</th><th>Refoulement'i keeld</th></tr></thead>
+        <tbody>
+          <tr><th>Kellele</th><td>vastab art 1A tingimustele</td><td>ei ole pagulane, kuid kodumaal ähvardab tõsine kahju</td><td>igaühele, keda ähvardab piinamine</td></tr>
+          <tr><th>Alus</th><td>pagulasseisundi konventsioon</td><td>EL õigus; Eestis VRKS</td><td>PVK art 3, EIÕK art 3</td></tr>
+          <tr><th>Välistamine</th><td>art 1F</td><td>sarnased alused</td><td>puudub, keeld on absoluutne</td></tr>
+          <tr><th>Mida annab</th><td>elamisluba ja pagulase õigused</td><td>elamisluba</td><td>ainult kaitse väljasaatmise eest</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Pagulasstaatust ja täiendavat kaitset nimetatakse koos rahvusvaheliseks kaitseks. Eestis menetleb taotlusi Politsei- ja Piirivalveamet.</p>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- 3.2 VÄLJASAATMINE -->
+  <section class="view" data-view="valjasaatmine" hidden>
+    <header>
+      <span class="eyebrow">I · 3.2 Õigus vabadusele ja isikupuutumatusele</span>
+      <h2>Kinnipidamine ja väljasaatmine</h2>
+      <p class="lead">Välismaalase kinnipidamisest väljasaatmiseni: millised tagatised kehtivad igas etapis. Klõpsa etapil, et näha sätet.</p>
+    </header>
+    <div class="sheet"><div class="tl" id="timeline"></div></div>
+
+    <div class="grid g2">
+      <div class="sheet block">
+        <span class="eyebrow">Mõisted lahku</span>
+        <h3>Väljasaatmine ja väljaandmine</h3>
+        <p class="small"><b>Väljasaatmine</b>: riik ise otsustab, et välismaalasel ei ole alust riigis viibida, ja toimetab ta riigist välja.</p>
+        <p class="small"><b>Väljaandmine</b>: isik antakse teise riigi taotlusel üle kriminaalmenetluseks või karistuse kandmiseks.</p>
+        <p class="small muted">Piinamisvastase konventsiooni art 3 keelab mõlemad, kui sihtriigis ähvardab piinamine.</p>
+      </div>
+      <div class="sheet block">
+        <span class="eyebrow">Kes on kaitstud</span>
+        <h3>Protokoll nr 7 ei kaitse kõiki</h3>
+        <p class="small">Prot 7 art 1 menetluslikud tagatised kehtivad välismaalasele, kes elab riigi territooriumil <b>õiguspäraselt</b>.</p>
+        <p class="small">Kollektiivse väljasaatmise keeld (Prot 4) ja piinamise keeld kehtivad aga <b>kõigile</b>, ka ebaseaduslikult saabunutele.</p>
+      </div>
+    </div>
+
+    <div class="extra">
+      <span class="eyebrow">Lisaks materjalile · Eesti kontekst</span>
+      <h3>Kuidas see Eestis toimib</h3>
+      <ul class="ticks small">
+        <li>Väljasõidukohustust, väljasaatmist ja sissesõidukeeldu reguleerib väljasõidukohustuse ja sissesõidukeelu seadus (VSS).</li>
+        <li>Lahkumisettekirjutuse teeb üldjuhul Politsei- ja Piirivalveamet. Ettekirjutus on haldusakt, seega kehtivad HMS põhimõtted ja selle saab vaidlustada halduskohtus.</li>
+        <li>Väljasaadetava kinnipidamiseks kauemaks kui 48 tunniks on vaja halduskohtu luba. See on EIÕK art 5 lg 4 kohtuliku kontrolli tagatise riigisisene vorm.</li>
+        <li>Iga väljasaatmise juures tuleb kontrollida sihtriigi olukorda (uurimispõhimõte HMS § 6), sest piinamisoht teeb väljasaatmise võimatuks.</li>
+      </ul>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- II HMS -->
+  <section class="view" data-view="hms" data-lp="HMS" hidden>
+    <header>
+      <span class="eyebrow">II · Menetlusraamistik · Haldusmenetluse seadus</span>
+      <h2>Haldusmenetlus</h2>
+      <p class="lead">HMS on suunatud isiku õiguste kaitse tagamisele ühtlase, isiku osalust ja kohtulikku kontrolli võimaldava menetluskorra kaudu <span class="cite">HMS § 1</span>.</p>
+    </header>
+
+    <div class="sheet block">
+      <h3>Mis on haldusmenetlus? <span class="cite">HMS § 2</span></h3>
+      <p>Haldusorgani tegevus määruse või haldusakti andmisel, toimingu sooritamisel või halduslepingu sõlmimisel.</p>
+      <div class="forms">
+        <span></span><span class="hd">Üksikjuhtum (konkreetne isik)</span><span class="hd">Üldine (piiritlemata juhud)</span>
+        <span class="side">Ühepoolne</span>
+        <div class="f"><b>Haldusakt</b><span class="cite" style="align-self:flex-start">§ 51</span><span>Otsus, korraldus, ettekirjutus. Nt elamisloa andmine, lahkumisettekirjutus.</span></div>
+        <div class="f"><b>Määrus</b><span class="cite" style="align-self:flex-start">§ 88</span><span>Üldakt, mis kehtib kõigile. Nt ministri määrus taotluse vormi kohta.</span></div>
+        <span class="side">Muu</span>
+        <div class="f"><b>Toiming</b><span class="cite" style="align-self:flex-start">§ 106</span><span>Faktiline tegevus, mis ei ole akt. Nt dokumentide kontroll, teabe andmine.</span></div>
+        <div class="f"><b>Haldusleping</b><span class="cite" style="align-self:flex-start">§ 95</span><span>Avalik-õiguslik leping isikuga või teise asutusega.</span></div>
+      </div>
+      <p class="small muted"><b>Ei ole haldusmenetlus</b> (§ 2 lg 2): tööstusomandi õiguskaitse menetlus, riigihanked ja nende vaidlustamine, väärteomenetlus ning süütegude kohtueelne uurimine. Neid reguleerivad teised seadused.</p>
+    </div>
+
+    <div class="sheet block">
+      <h3>Haldusmenetluse käik</h3>
+      <p class="small muted">Lisaks materjalile: tüüpiline järjekord, kui amet teeb isiku kohta otsuse.</p>
+      <div class="flow">
+        <div class="s"><b>1. Algatamine</b><span>isiku taotlusel või haldusorgani algatusel</span></div>
+        <div class="s"><b>2. Asjaolude selgitamine</b><span class="cite">§ 6</span><span>amet kogub tõendid ise</span></div>
+        <div class="s"><b>3. Ärakuulamine</b><span class="cite">§ 40</span><span>isik saab esitada arvamuse ja vastuväited</span></div>
+        <div class="s"><b>4. Otsus</b><span class="cite">§ 56</span><span>haldusakt koos põhjendustega</span></div>
+        <div class="s"><b>5. Teatavakstegemine</b><span>akt hakkab kehtima, kui isikule teatatakse</span></div>
+        <div class="s"><b>6. Vaidlustamine</b><span>vaie või halduskohus</span></div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>Põhimõtted <span class="cite">HMS § 3 kuni § 7</span></h3>
+      <div class="grid g2" id="hmsPrinciples"></div>
+    </div>
+
+    <div class="sheet block">
+      <h3>Proportsionaalsuse test <span class="cite">HMS § 3 lg 2</span></h3>
+      <p class="small muted">Näide õppimiseks. Eesmärk: tagada, et lahkumiskohustusega välismaalane ei kaoks enne lahkumist. Vali meede ja vaata, kas see läbib kolm astet.</p>
+      <div class="measures" id="measures"></div>
+      <div class="prop" id="propSteps"></div>
+      <p class="insight" id="propNote"></p>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- II HKMS -->
+  <section class="view" data-view="hkms" data-lp="HKMS" hidden>
+    <header>
+      <span class="eyebrow">II · Menetlusraamistik · Halduskohtumenetluse seadustik</span>
+      <h2>Halduskohus</h2>
+      <p class="lead">Halduskohtumenetluse ülesanne on eelkõige isikute õiguste kaitse õigusvastase tegevuse eest täidesaatva võimu teostamisel <span class="cite">HKMS § 2 lg 1</span>.</p>
+    </header>
+
+    <div class="block">
+      <h3>Menetlusosalised <span class="cite">HKMS § 15</span></h3>
+      <p class="small muted">Klõpsa osalisel.</p>
+      <div class="court" id="court"></div>
+      <div class="sheet block" id="courtInfo"></div>
+    </div>
+
+    <div class="sheet block">
+      <h3>Kohtu põhimõtted <span class="cite">HKMS § 2</span></h3>
+      <ul class="ticks small">
+        <li>Sõltumatu ja erapooletu kohus lahendab asja õigesti, ausalt, mõistliku aja jooksul ja võimalikult väikeste kuludega (§ 2 lg 2).</li>
+        <li>Kohus lahendab asja üksnes kaebuses nõutud ulatuses; avalduse esitamise otsustab menetlusosaline ise (§ 2 lg 3).</li>
+        <li>Kohus selgitab olulised asjaolud välja omal algatusel ja lähtub esitaja tegelikust tahtest (§ 2 lg 4).</li>
+        <li>Kohus selgitab, et avaldus või tõend ei jääks esitamata õigusliku kogenematuse tõttu (§ 2 lg 5).</li>
+        <li>Menetlusosalistel on tõhus ja võrdne võimalus esitada seisukohti ja vaielda vastu (§ 2 lg 6).</li>
+        <li>Menetlus on avalik, kui seadus ei sätesta teisiti (§ 2 lg 7).</li>
+      </ul>
+      <p class="small muted">Haldusakt on ka haldusleping ja üksikjuhtumit reguleeriv halduse siseakt; toiming on ka tegevusetus ja viivitus <span class="cite">HKMS § 6</span>. Menetlusosaline peab kasutama õigusi heauskselt; kuritarvitamise eest võib kohus trahvida <span class="cite">HKMS § 28</span>.</p>
+    </div>
+
+    <div class="sheet block">
+      <h3>Mida isik palub ja mida kohus saab teha <span class="cite">HKMS § 5 lg 1</span></h3>
+      <p class="small muted">Iga kaebuse liik (HKMS § 37, lisaks materjalile) vastab ühele kohtu volitusele. Kohus võib volitusi rakendada nii koos kui eraldi (§ 5 lg 4).</p>
+      <div class="twrap"><table class="info">
+        <thead><tr><th>Kaebuse liik</th><th>Kohtu volitus</th><th>Näide</th></tr></thead>
+        <tbody>
+          <tr><th>Tühistamiskaebus</th><td>1) tühistada haldusakt osaliselt või täielikult</td><td>Õigusvastane lahkumisettekirjutus tühistatakse.</td></tr>
+          <tr><th>Kohustamiskaebus</th><td>2) kohustada akti andma või toimingut tegema</td><td>Amet on taotluse lahendamata jätnud; kohus kohustab otsust tegema.</td></tr>
+          <tr><th>Keelamiskaebus</th><td>3) keelata akti andmine või toimingu tegemine</td><td>Kohus keelab ette teada õigusvastase toimingu.</td></tr>
+          <tr><th>Hüvitamiskaebus</th><td>4) mõista välja hüvitis avalik-õiguslikus suhtes tekitatud kahju eest</td><td>Õigusvastase kinnipidamise eest makstakse hüvitist.</td></tr>
+          <tr><th>Heastamiskaebus</th><td>5) ettekirjutus haldusakti või toimingu tagajärgede kõrvaldamiseks</td><td>Ära võetud dokument tuleb tagastada.</td></tr>
+          <tr><th>Tuvastamiskaebus</th><td>6) tuvastada tühisus, õigusvastasus või faktiline asjaolu</td><td>Kinnipidamine on lõppenud, kuid kohus tuvastab, et see oli õigusvastane.</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small muted">Punktide 1–5 volitusi rakendab kohus, arvestades riigivastutuse seadust (§ 5 lg 3).</p>
+    </div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- KAASUS -->
+  <section class="view" data-view="kaasus" hidden>
+    <header>
+      <span class="eyebrow">Kordamine · kõik moodulid koos</span>
+      <h2>Kaasuse lahendamise skeem</h2>
+      <p class="lead">Seitse küsimust, mis seovad kogu materjali üheks lahenduskäiguks. Iga sammu juures on näha, kuidas skeem töötab ühe näidiskaasuse peal.</p>
+    </header>
+    <div class="sheet block">
+      <span class="eyebrow">Näidiskaasus (õppimiseks koostatud)</span>
+      <p style="font-size:1.03rem">Kolmanda riigi kodanik X saabus Eestisse ilma kehtiva viisata. Politsei- ja Piirivalveamet pidas ta kinni ja tegi ettekirjutuse riigist lahkuda. X-i kodumaal on varem kinnipeetuid piinatud ja ta on seal olnud valitsusvastase meeleavalduse korraldaja. Kinnipidamise põhjusi talle ei selgitatud, sest tõlki ei olnud. X-i abikaasa ja laps elavad Eestis elamisloaga.</p>
+    </div>
+    <div class="cs" id="caseScheme"></div>
+    <div data-notes></div>
+    <button class="btn ghost done-btn" data-done>Märgi läbituks</button>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- SÕNASTIK -->
+  <section class="view" data-view="sonastik" hidden>
+    <header>
+      <span class="eyebrow">Kordamine</span>
+      <h2>Sõnastik</h2>
+      <p class="lead">Kõik lehel kasutatud mõisted ja lühendid. Need on samad selgitused, mis avanevad, kui klõpsad mõne mõiste peal mujal lehel.</p>
+    </header>
+    <input class="search" id="glossSearch" type="search" placeholder="Otsi mõistet…" aria-label="Otsi mõistet">
+    <div class="gloss" id="gloss"></div>
+    <div class="pager" data-pager></div>
+  </section>
+
+  <!-- KAARDID -->
+  <section class="view" data-view="kaardid" hidden>
+    <header>
+      <span class="eyebrow">Kordamine</span>
+      <h2>Mõistekaardid</h2>
+      <p class="lead">Ees on mõiste, taga selgitus. Klõpsa kaardil, et see ümber pöörata.</p>
+    </header>
+    <div class="flashgrid" id="flashgrid"></div>
+    <div class="pager" data-pager></div>
+  </section>
+
+  </main>
+</div>
+
+<div id="pop" role="dialog" aria-modal="false" aria-labelledby="popT" hidden>
+  <div class="ph"><span class="eyebrow" id="popE">Mõiste</span><button class="x" type="button" aria-label="Sulge" id="popX">×</button></div>
+  <h4 id="popT"></h4>
+  <div id="popD"></div>
+  <a id="popL" href="#" hidden></a>
+</div>
+
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* ================= GLOSSARY ================= */
+/* Järjekord on oluline: pikemad ja täpsemad mustrid enne üldisemaid. */
+const GL=[
+ {k:"vrks",t:"VRKS",re:"VRKS|välismaalasele rahvusvahelise kaitse andmise seadu\\p{L}*",d:"Välismaalasele rahvusvahelise kaitse andmise seadus. Reguleerib Eestis pagulasstaatuse ja täiendava kaitse andmist."},
+ {k:"vss",t:"VSS",re:"VSS|väljasõidukohustuse ja sissesõidukeelu seadu\\p{L}*",d:"Väljasõidukohustuse ja sissesõidukeelu seadus. Reguleerib välismaalase kohustust Eestist lahkuda, väljasaatmist, kinnipidamist väljasaatmise tagamiseks ja sissesõidukeeldu.",v:"valjasaatmine"},
+ {k:"ppa",t:"Politsei- ja Piirivalveamet (PPA)",re:"PPA|politsei- ja piirivalveame\\p{L}*",d:"Täidab muu hulgas migratsiooni- ja piirivalveülesandeid: elamisload, rahvusvahelise kaitse menetlus, lahkumisettekirjutused ja väljasaatmine."},
+ {k:"eik",t:"Euroopa Inimõiguste Kohus (EIK)",re:"euroopa inimõiguste koh\\p{L}*|EIK",d:"Strasbourgis asuv Euroopa Nõukogu kohus, mis lahendab kaebusi EIÕK rikkumise kohta. Pöörduda saab pärast riigisiseste õiguskaitsevahendite ammendamist, 4 kuu jooksul lõplikust riigisisesest otsusest.",v:"kaitse"},
+ {k:"epl",t:"Euroopa põhiseaduse leping",re:"euroopa põhiseaduse lepin\\p{L}*",d:"2004. aastal allkirjastatud leping, mis ei jõustunud, sest Prantsusmaa ja Madalmaad lükkasid selle 2005. aastal rahvahääletusel tagasi. Selle II osa oli põhiõiguste harta, seepärast kannavad materjalis harta artiklid numbreid II-61 jne. Harta muutus siduvaks Lissaboni lepinguga 2009."},
+ {k:"harta",t:"Euroopa Liidu põhiõiguste harta",re:"(?:liidu |EL )?põhiõiguste hart\\p{L}*|EL hart\\p{L}*",d:"EL põhiõiguste kataloog. Kuulutati välja 2000, õiguslikult siduv alates 1.12.2009 (Lissaboni leping). Kohustab ELi institutsioone ja liikmesriike siis, kui need rakendavad liidu õigust.",v:"maatriks"},
+ {k:"ioud",t:"Inimõiguste ülddeklaratsioon (IÕÜD)",re:"inimõiguste ülddeklar\\p{L}*|IÕÜD",d:"ÜRO Peaassamblee 10.12.1948 vastu võetud deklaratsioon. Formaalselt ei ole see leping, kuid see on kogu inimõiguste süsteemi alus ning paljud selle sätted on muutunud üldtunnustatud normideks.",v:"raamistik"},
+ {k:"kporp",t:"Kodaniku- ja poliitiliste õiguste rahvusvaheline pakt (KPÕRP)",re:"kodaniku- ja poliitiliste õiguste (?:rahvusvaheli\\p{L}* )?pakt\\p{L}*|KPÕRP",d:"ÜRO pakt (1966, jõustus 1976), mis muudab ülddeklaratsiooni kodaniku- ja poliitilised õigused (nt elu, vabadus, usuvabadus) osalisriikidele siduvaks. Järelevalvet teeb ÜRO Inimõiguste Komitee.",v:"raamistik"},
+ {k:"msk",t:"Majanduslike, sotsiaalsete ja kultuuriliste õiguste pakt (MSKÕRP)",re:"majanduslike, sotsiaalsete ja kultuuriliste õiguste (?:rahvusvaheli\\p{L}* )?pakt\\p{L}*|MSKÕRP",d:"ÜRO pakt (1966, jõustus 1976): õigus tööle, sotsiaalkindlustusele, haridusele, tervisele jt. Koos ülddeklaratsiooni ja KPÕRP-ga moodustab nn rahvusvahelise inimõiguste billi."},
+ {k:"eiok",t:"Euroopa inimõiguste konventsioon (EIÕK)",re:"inimõiguste ja põhivabaduste kaitse konventsio\\p{L}*|EIÕK",d:"Ametlik nimi: Inimõiguste ja põhivabaduste kaitse konventsioon. Euroopa Nõukogu leping (Rooma 1950, jõustus 1953), Eesti suhtes jõustus 1996. Seda täiendavad protokollid. Täitmist kontrollib Euroopa Inimõiguste Kohus.",v:"maatriks"},
+ {k:"lok",t:"Lapse õiguste konventsioon (LÕK)",re:"lapse õiguste konventsio\\p{L}*|LÕK",d:"ÜRO konventsioon (1989, jõustus 1990). Lähtepõhimõte: kõigis lapsi puudutavates otsustes tuleb esikohale seada lapse huvid."},
+ {k:"pvk",t:"Piinamisvastane konventsioon (PVK)",re:"piinamisvasta\\p{L}* konventsio\\p{L}*|piinamise ning muu julma, ebainimliku või inimväärikust alandava kohtlemise ja karistamise vastase konventsio\\p{L}*|PVK",d:"ÜRO konventsioon (1984, jõustus 1987). Keelab piinamise igal juhul ja sisaldab refoulement'i keeldu (art 3). Järelevalvet teeb ÜRO Piinamisvastane Komitee.",v:"pagulane"},
+ {k:"pagk",t:"Pagulasseisundi konventsioon",re:"pagulasseisundi konventsio\\p{L}*|pagulaskonv\\p{L}*",d:"ÜRO 1951. aasta Genfi konventsioon koos 1967. aasta protokolliga, mis kaotas konventsiooni ajalise ja geograafilise piirangu. Määratleb pagulase mõiste (art 1) ja keelab pagulase tagasisaatmise ohtu (art 33).",v:"pagulane"},
+ {k:"prot",t:"EIÕK protokollid nr 4 ja 7",re:"protokoll\\p{L}* nr [47]|prot [47]",d:"Lisaprotokollid lisavad EIÕK-le uusi õigusi ja seovad riike, kes on need ratifitseerinud. Protokoll nr 4 keelab muu hulgas välismaalaste kollektiivse väljasaatmise (art 4), protokoll nr 7 annab õiguspäraselt elavale välismaalasele menetluslikud tagatised väljasaatmisel (art 1).",v:"valjasaatmine"},
+ {k:"hms",t:"Haldusmenetluse seadus (HMS)",re:"haldusmenetluse seadu\\p{L}*|HMS",d:"Reguleerib, kuidas haldusorgan annab haldusakte ja määrusi, sooritab toiminguid ja sõlmib halduslepinguid ning milliseid põhimõtteid ta peab järgima.",v:"hms"},
+ {k:"hkms",t:"Halduskohtumenetluse seadustik (HKMS)",re:"halduskohtumenetluse seadusti\\p{L}*|halduskohtumenetlus\\p{L}*|HKMS",d:"Reguleerib, kuidas halduskohus lahendab avalik-õiguslikke vaidlusi isiku ja täidesaatva võimu vahel.",v:"hkms"},
+ {k:"ikum",t:"Isikuandmete kaitse üldmäärus",re:"isikuandmete kaitse üldmäärus\\p{L}*|IKÜM",d:"EL määrus 2016/679 (inglise k GDPR), mis sätestab isikuandmete töötlemise reeglid. Kehtib otse kõigis liikmesriikides, ka haldusmenetluses (HMS § 7 lg 4)."},
+ {k:"en",t:"Euroopa Nõukogu",re:"euroopa nõukog\\p{L}*",d:"1949. aastal asutatud regionaalne organisatsioon inimõiguste, demokraatia ja õigusriigi kaitseks (46 riiki). Selle raames on sõlmitud EIÕK ja tegutseb Euroopa Inimõiguste Kohus. Ei ole Euroopa Liidu institutsioon. Eesti liitus 1993.",v:"raamistik"},
+ {k:"el",t:"Euroopa Liit",re:"euroopa lii\\p{L}*",d:"27 liikmesriigi majandus- ja poliitiline liit. EL õiguses jagunevad isikud liikmesriigi, teise liikmesriigi ja kolmanda riigi kodanikeks. Eesti on liige alates 1.05.2004.",v:"raamistik"},
+ {k:"urokom",t:"ÜRO komiteed",re:"(?:ÜRO )?komitee\\p{L}*",d:"ÜRO lepinguorganid (nt Inimõiguste Komitee, Piinamisvastane Komitee). Need jälgivad lepingute täitmist ja võivad lahendada üksikisikute kaebusi, kui riik on selle menetluse tunnustanud.",v:"kaitse"},
+ {k:"uro",t:"ÜRO",re:"ÜRO",d:"Ühinenud Rahvaste Organisatsioon (asutatud 1945) on ainus globaalne rahvusvaheline katusorganisatsioon. Peamine missioon on säilitada rahvusvaheline rahu ja julgeolek. Eesti on liige alates 17.09.1991.",v:"raamistik"},
+ {k:"ps",t:"Põhiseadus (PS)",re:"põhiseadu\\p{L}*|PS",d:"Eesti Vabariigi põhiseadus, vastu võetud rahvahääletusel 28.06.1992. Kõrgeima õigusjõuga riigisisene akt, 15 peatükki. II peatükk sätestab põhiõigused, vabadused ja kohustused.",v:"pohiseadus"},
+ {k:"katusakt",t:"Katusõigusakt",re:"katusõigusakt\\p{L}*",d:"Põhiline, üldisi põhimõtteid sätestav akt, millele tuginevad teised, täpsemad aktid. ÜRO katusõigusaktid on ülddeklaratsioon ja kaks pakti."},
+ {k:"katus",t:"Katusorganisatsioon",re:"katusorganisatsio\\p{L}*|katusmõiste",d:"Organisatsioon (või mõiste), mille alla kuuluvad teised. ÜRO on ainus globaalne katusorganisatsioon: selle alla kuuluvad eriorganisatsioonid nagu WHO ja UNESCO."},
+ {k:"allorg",t:"Allorganisatsioon",re:"allorganisatsio\\p{L}*",d:"ÜRO süsteemi kuuluv eriorganisatsioon kindlas valdkonnas, nt WHO (tervis), UNESCO (haridus, teadus, kultuur), ICAO (tsiviillennundus) või Maailmapank (Rahvusvaheline Rekonstrueerimis- ja Arengupank)."},
+ {k:"regorg",t:"Regionaalne organisatsioon",re:"regionaals\\p{L}* (?:rahvusvahelis\\p{L}* )?organisatsio\\p{L}*",d:"Organisatsioon, mis ühendab kindla piirkonna riike (nt EL, Euroopa Nõukogu, Aafrika Liit). Regionaalne inimõiguste kaitse on sageli tugevam kui globaalne, sest sellel on oma kohus."},
+ {k:"osalis",t:"Osalisriik",re:"osalisrii\\p{L}*",d:"Riik, kes on lepingu ratifitseerinud või sellega ühinenud ning keda leping seetõttu seob. Osalisriik peab lepingust tulenevad kohustused realiseerima oma riigisiseses õiguses."},
+ {k:"ratif",t:"Ratifitseerimine",re:"ratifitseeri\\p{L}*",d:"Parlamendi (Eestis Riigikogu) otsus kinnitada välisleping. Pärast ratifitseerimist on leping riigile siduv."},
+ {k:"tasutaoa",t:"Tasuta õigusabi",re:"tasuta õigusabi",d:"Riigi rahastatud õigusabi isikule, kellel ei ole piisavalt vahendeid, et tagada tal võimalus kohtusse pöörduda (EL harta art 47). Eestis antakse seda riigi õigusabi seaduse alusel."},
+ {k:"kodset",t:"Kodakondsuseta isik",re:"kodakondsuseta\\p{L}*(?: isik\\p{L}*)?",d:"Isik, keda ükski riik ei tunnusta oma kodanikuna. Eesti jaoks on ta välismaalane, kuid PS § 9 järgi on tal kõik põhiseaduse igaühe õigused.",v:"seisund"},
+ {k:"kodjarg",t:"Kodakondsusjärgne riik",re:"kodakondsusjärgs\\p{L}* rii\\p{L}*",d:"Riik, mille kodanik isik on. Mitme kodakondsuse korral on selleks iga riik, mille kodanik ta on (pagulasseisundi konventsioon art 1A)."},
+ {k:"kodak",t:"Kodakondsus",re:"kodakondsu\\p{L}*",d:"Isiku püsiv õiguslik side konkreetse riigiga vastastikuste õiguste ja kohustuste kaudu. Riik otsustab ühepoolselt oma õigusaktides, keda ta loeb oma kodanikuks.",v:"seisund"},
+ {k:"kolmanda",t:"Kolmanda riigi kodanik",re:"kolmanda riigi kodani\\p{L}*",d:"EL õiguses välismaalane, kes ei ole ühegi EL liikmesriigi kodanik. Tal ei ole EL kodaniku vaba liikumise õigust; tema riiki sisenemist ja viibimist reguleerib riik välislepingute piires.",v:"seisund"},
+ {k:"valism",t:"Välismaalane",re:"välismaala\\p{L}*|välisriikide kodani\\p{L}*",d:"Isik, keda konkreetne riik ei tunnusta oma kodanikuna. Eesti jaoks on välismaalased ka teiste EL riikide kodanikud ja kodakondsuseta isikud.",v:"seisund"},
+ {k:"kodanik",t:"Kodanik",re:"kodani\\p{L}*",d:"Isik, keda riik tunnustab oma kodanikuna. Mõned õigused on ainult kodanikel, nt PS § 36 (Eesti kodanikku ei tohi Eestist välja saata) ja § 57 (hääleõigus Riigikogu valimistel).",v:"seisund"},
+ {k:"suver",t:"Suveräänsus",re:"suveräänn\\p{L}*|suveräänsu\\p{L}*",d:"Riigi kõrgeim ja sõltumatu võim oma territooriumil. Riik võib oma suveräänset õigust ise piirata, sõlmides välislepinguid."},
+ {k:"valisl",t:"Välisleping",re:"välislepin\\p{L}*",d:"Riigi sõlmitud rahvusvaheline leping (konventsioon, pakt, protokoll). PS § 123 järgi kohaldatakse vastuolu korral Riigikogu ratifitseeritud välislepingut, mitte Eesti seadust."},
+ {k:"hea",t:"Hea haldus",re:"hea\\p{L}* haldus\\p{L}*",d:"Euroopas üldtunnustatud põhiõigus (EL harta art 41): amet peab menetlema õiglaselt, erapooletult ja mõistliku aja jooksul, isikut ära kuulama ja oma otsuseid põhjendama.",v:"pohimotted"},
+ {k:"prop",t:"Proportsionaalsus",re:"proportsionaals\\p{L}*|proportsionaaln\\p{L}*",d:"Meede peab olema eesmärgi saavutamiseks sobiv (kohane), vajalik (leebemat ja sama tõhusat meedet ei ole) ja mõõdukas (kasu kaalub üles riive). HMS § 3 lg 2.",v:"pohimotted"},
+ {k:"oigusk",t:"Õiguskindlus",re:"õiguskindlus\\p{L}*",d:"Isik võib mõistlikult eeldada, et menetluse alguses või sündmuse ajal kehtinud õigust ei muudeta talle halvemas suunas. Sellest tuleneb tagasiulatuva halvendava mõju keeld.",v:"pohimotted"},
+ {k:"ootus",t:"Õiguspärane ootus",re:"õiguspäras\\p{L}* ootus\\p{L}*",d:"Isik võib kasutada riigi otsusega antud õigusi mõistlikus ootuses, et otsus jääb kehtima. Kaitseb usaldust riigi otsuste vastu.",v:"pohimotted"},
+ {k:"vord",t:"Võrdne kohtlemine",re:"võrds\\p{L}* kohtlemis\\p{L}*|võrdne kohtlemine",d:"Samasugustel asjaoludel tuleb isikuid kohelda samamoodi. Erinev kohtlemine on lubatud ainult mõistliku ja asjakohase põhjuse olemasolul.",v:"pohimotted"},
+ {k:"diskr",t:"Diskrimineerimine",re:"diskrimineeri\\p{L}*",d:"Isiku ebasoodsam kohtlemine mõne tunnuse (nt rass, sugu, usk, rahvus) tõttu ilma mõistliku põhjuseta. Keelatud kõigis materjali aktides; tunnuste loetelud on avatud („või muu seisund“)."},
+ {k:"arakuul",t:"Õigus olla ära kuulatud",re:"ära kuulatud|ärakuulami\\p{L}*",d:"Isikule tuleb enne tema õigusi puudutava otsuse tegemist anda võimalus esitada oma arvamus ja vastuväited (HMS § 40)."},
+ {k:"inimv",t:"Inimväärikus",re:"inimväärikus\\p{L}*",d:"Iga inimese väärtus inimesena, mis on kõigi põhiõiguste alus. EL harta järgi puutumatu. PS § 10 nimetab inimväärikust põhimõttena, millest tulenevad ka kirja panemata õigused."},
+ {k:"piin",t:"Piinamine",re:"piinami\\p{L}*|piinata",d:"Tahtlikult raske füüsilise või vaimse valu või kannatuse tekitamine, nt ülestunnistuse saamiseks, karistamiseks või hirmutamiseks, ametiisiku poolt või tema nõusolekul (PVK art 1). Keeld on absoluutne."},
+ {k:"ebain",t:"Ebainimlik ja alandav kohtlemine",re:"ebainimli\\p{L}*",d:"Piinamisest kergem, kuid samuti keelatud kohtlemine. Ebainimlik kohtlemine põhjustab tõsist kannatust; alandav kohtlemine alandab inimest tema enda või teiste silmis. Ka see keeld on absoluutne. Näide: väga halvad kinnipidamistingimused."},
+ {k:"refoul",t:"Refoulement",re:"non-refoulement|refoul\\p{L}*",d:"Prantsuse keeles „tagasi tõrjuma“. Refoulement'i keeld: isikut ei tohi saata riiki, kus teda ähvardab piinamine (PVK art 3, EIÕK art 3) või tagakiusamine (pagulasseisundi konventsioon art 33).",v:"pagulane"},
+ {k:"pagul",t:"Pagulane",re:"pagula\\p{L}*",d:"Isik, kes põhjendatult kardab tagakiusamist rassi, usu, rahvuse, sotsiaalsesse gruppi kuulumise või poliitiliste veendumuste pärast, viibib väljaspool kodakondsusjärgset riiki ega suuda või taha selle kaitset (art 1A).",v:"pagulane"},
+ {k:"tagak",t:"Tagakiusamine",re:"tagakiusami\\p{L}*",d:"Tõsine inimõiguste rikkumine (nt vangistamine, vägivald, ähvardused), mis on suunatud isiku vastu tema rassi, usu, rahvuse, sotsiaalse grupi või poliitiliste veendumuste tõttu. Majanduslik kitsikus üksi ei ole tagakiusamine."},
+ {k:"sotsgr",t:"Sotsiaalne grupp",re:"sotsiaals\\p{L}* gru\\p{L}*",d:"Inimeste rühm, keda ühendab ühine muutumatu või identiteedi jaoks oluline tunnus (nt sugu, seksuaalne sättumus, perekond) ja keda ühiskond näeb teistest eristuvana."},
+ {k:"varjup",t:"Varjupaik",re:"varjupai\\p{L}*",d:"Riigi antud kaitse tagakiusamise eest. Eestis antakse rahvusvahelist kaitset (pagulasstaatus või täiendav kaitse) VRKS alusel."},
+ {k:"taiend",t:"Täiendav kaitse",re:"täiendav\\p{L}* kaits\\p{L}*",d:"Rahvusvaheline kaitse isikule, kes ei vasta pagulase määratlusele, kuid keda ähvardab päritoluriiki naasmisel tõsine kahju (nt surmanuhtlus, piinamine, relvakonfliktist tulenev oht)."},
+ {k:"rvkaitse",t:"Rahvusvaheline kaitse",re:"rahvusvahelis\\p{L}* kaits\\p{L}*",d:"Ühisnimetus pagulasstaatusele ja täiendavale kaitsele. Eestis antakse VRKS alusel."},
+ {k:"koll",t:"Kollektiivne väljasaatmine",re:"kollektiivs\\p{L}* väljasaatmi\\p{L}*",d:"Välismaalaste grupi väljasaatmine ilma iga inimese olukorda eraldi ja objektiivselt hindamata. Keelatud EIÕK protokolli nr 4 art 4 järgi, kehtib ka ebaseaduslikult saabunutele.",v:"valjasaatmine"},
+ {k:"valjas",t:"Väljasaatmine",re:"väljasaatmi\\p{L}*|välja saat\\p{L}*",d:"Välismaalase sunniviisiline riigist välja toimetamine, kui tal ei ole alust riigis viibida. Eestis reguleerib seda VSS. Eesti kodanikku välja saata ei tohi (PS § 36).",v:"valjasaatmine"},
+ {k:"valjaand",t:"Väljaandmine",re:"väljaandmi\\p{L}*|välja and\\p{L}*",d:"Isiku üleandmine teisele riigile selle riigi taotlusel kriminaalmenetluseks või karistuse kandmiseks. Erineb väljasaatmisest, mille üle otsustab riik ise."},
+ {k:"vahist",t:"Vahistamine",re:"vahistami\\p{L}*|vahistatu\\p{L}*",d:"Isiku vabaduse võtmine kohtu loal kriminaalmenetluses. EIÕK art 5 kasutab mõisteid vahistamine ja kinnipidamine koos: tagatised kehtivad mõlemale."},
+ {k:"kinni",t:"Kinnipidamine",re:"kinnipidami\\p{L}*|kinni pee\\p{L}*|kinni pida\\p{L}*|kinnipee\\p{L}*",d:"Vabaduse võtmine. Välismaalase võib kinni pidada loata sissesõidu vältimiseks või väljasaatmise tagamiseks (EIÕK art 5 lg 1 p f). Kinnipeetul on õigus teada põhjusi ja nõuda kiiret kohtulikku kontrolli.",v:"valjasaatmine"},
+ {k:"isikup",t:"Isikuvabadus ja -puutumatus",re:"isikupuutumatus\\p{L}*|isikuvabadus\\p{L}*",d:"Õigus füüsilisele vabadusele: kedagi ei tohi meelevaldselt kinni pidada (EIÕK art 5, PS § 20). Laiemalt hõlmab isikupuutumatus ka kehalist ja vaimset puutumatust (EL harta art 3)."},
+ {k:"oiguskv",t:"Õiguskaitsevahend",re:"õiguskaitsevahend\\p{L}*|õiguskaitse vahend\\p{L}*",d:"Menetlus, millega isik saab oma rikutud õigusi kaitsta: vaie, kohtukaebus, rahvusvahelised mehhanismid. Peab olema tõhus (EL harta art 47).",v:"kaitse"},
+ {k:"vaie",t:"Vaie ja vaidemenetlus",re:"vaidemenetlus\\p{L}*|vaie|vaide",d:"Haldusakti või toimingu vaidlustamine täitevvõimu sees: haldusorganis endas või kõrgemalseisvas asutuses. Vaide saab esitada 30 päeva jooksul (HMS § 75). Üldjuhul võib vaide asemel pöörduda kohe kohtusse.",v:"kaitse"},
+ {k:"ammend",t:"Riigisiseste vahendite ammendamine",re:"ammendami\\p{L}*|ammendatud",d:"Enne rahvusvahelisse organisse pöördumist peab isik olema kasutanud kõiki tõhusaid riigisiseseid võimalusi, Eestis üldjuhul kuni Riigikohtuni."},
+ {k:"kaasho",t:"Kaasatud haldusorgan",re:"kaasatud haldusorgan\\p{L}*",d:"Haldusorgan, kelle kohus kaasab menetlusse arvamuse andmiseks, nt vastustaja üle järelevalvet tegev asutus (HKMS § 24). Ei ole pool.",v:"hkms"},
+ {k:"hkohus",t:"Halduskohus",re:"halduskoh\\p{L}*",d:"Esimese astme kohus avalik-õiguslike vaidluste lahendamiseks (Tallinna ja Tartu halduskohus). Otsuse peale saab kaevata ringkonnakohtusse ja sealt Riigikohtusse.",v:"hkms"},
+ {k:"ringk",t:"Ringkonnakohus",re:"ringkonnakoh\\p{L}*",d:"Teise astme kohus, kuhu kaevatakse maakohtu või halduskohtu otsuse peale (apellatsioon)."},
+ {k:"riigik",t:"Riigikohus",re:"riigikoh\\p{L}*",d:"Eesti kõrgeim kohus Tartus. Kassatsioonikohus ja ühtlasi põhiseaduslikkuse järelevalve kohus."},
+ {k:"oigkants",t:"Õiguskantsler",re:"õiguskantsle\\p{L}*",d:"Sõltumatu ametiisik (PS XII peatükk), kes kontrollib seaduste põhiseaduspärasust ja ametiasutuste tegevust põhiõiguste tagamisel. Igaüks võib tema poole tasuta pöörduda. Kontrollib ka kinnipidamiskohti piinamise ennetamiseks."},
+ {k:"kaebetaht",t:"Kaebetähtaeg",re:"kaebetähta\\p{L}*",d:"Aeg, mille jooksul kaebuse saab esitada. Tühistamiskaebuse saab halduskohtule esitada 30 päeva jooksul haldusakti teatavaks tegemisest (HKMS § 46)."},
+ {k:"piirkl",t:"Piiranguklausel",re:"piiranguklaus\\p{L}*",d:"Sätte osa, mis ütleb, millistel tingimustel õigust tohib piirata (nt EIÕK art 8 lg 2). Kui klauslit ei ole ja õigus on sõnastatud keeluna, on see üldjuhul absoluutne.",v:"maatriks"},
+ {k:"abs",t:"Absoluutne õigus",re:"absoluutn\\p{L}*",d:"Õigus, mida ei tohi piirata ühelgi põhjusel, ka mitte erakorralises olukorras ega julgeoleku huvides. Näide: piinamise ja alandava kohtlemise keeld.",v:"maatriks"},
+ {k:"demvaj",t:"Demokraatlikus ühiskonnas vajalik",re:"demokraatlikus ühiskonnas vajalik\\p{L}*",d:"Piirangu tingimus (PS § 11, EIÕK art 8 ja 9): piirang peab vastama pakilisele ühiskondlikule vajadusele ja olema eesmärgiga proportsionaalne."},
+ {k:"avkord",t:"Avalik kord (ordre public)",re:"avali(?:k|ku|kku) kor(?:d|ra|da)|ordre public",d:"Ühiskonna toimimiseks vajalik turvalisus ja korrapära. Üks legitiimsetest eesmärkidest, mille nimel võib põhiõigusi piirata."},
+ {k:"riive",t:"Riive",re:"riive\\p{L}*|riivatud|riivab",d:"Põhiõiguse kaitsealasse sekkumine: riigi tegevus, mis takistab või raskendab õiguse kasutamist. Riive ei ole automaatselt rikkumine: rikkumine on õigustamata riive.",v:"pohiseadus"},
+ {k:"legeesm",t:"Legitiimne eesmärk",re:"legitiims\\p{L}* eesmär\\p{L}*",d:"Põhiseaduse või konventsiooniga lubatud eesmärk, mille nimel võib õigust piirata, nt riigi julgeolek, avalik kord, tervis, teiste õigused ja vabadused."},
+ {k:"seadres",t:"Seaduse reservatsioon",re:"seaduse reservatsioo\\p{L}*",d:"Nõue, et põhiõigusi tohib piirata ainult seaduse alusel (PS § 3 ja § 11, HMS § 3 lg 1). Amet ei saa õigusi piirata ilma seadusliku aluseta."},
+ {k:"riigikirik",t:"Riigikirik",re:"riigikirik\\p{L}*",d:"Riigi ametlik, riigiga seotud kirik. PS § 40 järgi Eestis riigikirikut ei ole: riik on usuliselt neutraalne."},
+ {k:"eugeen",t:"Eugeenika",re:"eugeeni\\p{L}*",d:"Püüd „parandada“ inimpopulatsiooni pärilikkust inimeste valikuga. EL harta art 3 keelab sellised toimingud."},
+ {k:"klon",t:"Reproduktiivne kloonimine",re:"reproduktiivs\\p{L}* kloonimis\\p{L}*",d:"Geneetiliselt identse inimese loomine. EL harta art 3 keelab selle."},
+ {k:"taasyh",t:"Perekonna taasühinemine",re:"perekonna taasühinemi\\p{L}*",d:"Riigis elava isiku pereliikmete lubamine tema juurde elama. LÕK art 10 nõuab lapse ja vanemate avalduste lahendamist positiivselt, humaanselt ja kiiresti."},
+ {k:"horgan",t:"Haldusorgan",re:"haldusorgan\\p{L}*",d:"Asutus, kogu või isik, kes täidab seaduse alusel avalikke haldusülesandeid (HMS § 8), nt ministeerium, amet, kohalik omavalitsus, PPA.",v:"hms"},
+ {k:"hakt",t:"Haldusakt",re:"haldusakt\\p{L}*",d:"Haldusorgani korraldus, otsus, ettekirjutus või muu akt, millega reguleeritakse avalik-õiguslikus suhtes üksikjuhtumit ning tekitatakse, muudetakse või lõpetatakse isiku õigusi või kohustusi (HMS § 51). Nt elamisloa andmine.",v:"hms"},
+ {k:"maarus",t:"Määrus",re:"määrus\\p{L}*",d:"Haldusorgani üldakt piiritlemata arvu juhtude reguleerimiseks (HMS § 88). Erinevalt haldusaktist ei ole suunatud konkreetsele isikule.",v:"hms"},
+ {k:"toiming",t:"Toiming",re:"toiming\\p{L}*",d:"Haldusorgani avalik-õiguslik tegevus, mis ei ole haldusakti ega määruse andmine (HMS § 106), nt dokumentide kontroll, teabe andmine. Halduskohtus on toiming ka tegevusetus ja viivitus (HKMS § 6).",v:"hms"},
+ {k:"hleping",t:"Haldusleping",re:"halduslepin\\p{L}*",d:"Avalik-õigusliku suhte tekitamiseks, muutmiseks või lõpetamiseks sõlmitud leping (HMS § 95).",v:"hms"},
+ {k:"hmenet",t:"Haldusmenetlus",re:"haldusmenetlus\\p{L}*",d:"Haldusorgani tegevus määruse või haldusakti andmisel, toimingu sooritamisel või halduslepingu sõlmimisel (HMS § 2). Ei hõlma väärteo- ega kriminaalmenetlust.",v:"hms"},
+ {k:"kaalut",t:"Kaalutlusõigus (diskretsioon)",re:"kaalutlusõigu\\p{L}*|diskretsioo\\p{L}*",d:"Seadusega antud volitus kaaluda, kas otsus teha, või valida mitme otsuse vahel (HMS § 4). Tunneb ära sõnadest „võib“ ja „üldjuhul“. Kaalumata jätmine või volituse piiride ületamine on kaalutlusviga.",v:"hms"},
+ {k:"uurim",t:"Uurimispõhimõte",re:"uurimispõhimõt\\p{L}*",d:"Haldusorgan peab ise välja selgitama asjas olulised asjaolud ja koguma vajadusel tõendeid oma algatusel (HMS § 6). Tõendamiskoormus ei ole ainult isikul.",v:"hms"},
+ {k:"subj",t:"Subjektiivne õigus",re:"subjektiivs\\p{L}* õigu\\p{L}*",d:"Isikule kuuluv õigus nõuda teiselt (näiteks riigilt) tegu või tegevusest hoidumist ning seda vajadusel kohtus kaitsta."},
+ {k:"pohioig",t:"Põhiõigus",re:"põhiõigu\\p{L}*",d:"Põhiseaduses sätestatud õigus (Eestis PS II peatükk). Seob otse kõiki võimuharusid ja omavalitsusi (PS § 14). Inimõiguse riigisisene vaste.",v:"pohiseadus"},
+ {k:"inimoig",t:"Inimõigus",re:"inimõigu\\p{L}*",d:"Rahvusvahelises õiguses tunnustatud õigus, mis tuleneb ainuüksi inimeseks olemisest; universaalne ja võõrandamatu.",v:"raamistik"},
+ {k:"menos",t:"Menetlusosaline",re:"menetlusosali\\p{L}*",d:"Halduskohtumenetluses osaleja: kaebaja, vastustaja, kolmas isik või kaasatud haldusorgan (HKMS § 15).",v:"hkms"},
+ {k:"kaebaja",t:"Kaebaja",re:"kaebaja\\p{L}*",d:"Isik või isikute ühendus, kes on esitanud halduskohtule kaebuse (HKMS § 16).",v:"hkms"},
+ {k:"vastustaja",t:"Vastustaja",re:"vastustaja\\p{L}*",d:"Asutus või isik, kelle tegevuse peale kaebus on esitatud (HKMS § 17), nt amet, ministeerium, omavalitsus. Kohtulahendiga tekitatud kahju puhul Justiitsministeerium.",v:"hkms"},
+ {k:"kolmas",t:"Kolmas isik",re:"kolma(?:s|nda) isik\\p{L}*",d:"Isik, kes ei ole pool, kuid kelle õiguste või kohustuste üle kohtulahendiga võidakse otsustada (HKMS § 20). Tal on pooltega võrdsed õigused.",v:"hkms"},
+ {k:"resol",t:"Resolutsioon",re:"resolutsioo\\p{L}*",d:"Kohtuotsuse osa, kus kohus ütleb, mida ta otsustas (nt „tühistada ettekirjutus“). Põhjendused on otsuse teises osas."},
+ {k:"tyhisus",t:"Tühisus",re:"tühisus\\p{L}*|tühine",d:"Haldusakt on tühine, kui sellel on nii raske viga, et see ei kehti algusest peale (nt selle andis pädevuseta organ). Tühist haldusakti ei pea täitma (HMS § 63)."},
+ {k:"rvastutus",t:"Riigivastutus",re:"riigivastutus\\p{L}*",d:"Riigi kohustus hüvitada avaliku võimu õigusvastase tegevusega tekitatud kahju. Täpsemalt reguleerib riigivastutuse seadus."},
+ {k:"avoig",t:"Avalik-õiguslik suhe",re:"avalik-õiguslik\\p{L}*",d:"Suhe, kus üks pool teostab avalikku võimu (riik, omavalitsus) ja suhe põhineb avalikul õigusel. Erineb eraõiguslikust suhtest, mille pooled on võrdsed."},
+ {k:"ettek",t:"Ettekirjutus",re:"ettekirjutus\\p{L}*|lahkumisettekirjutus\\p{L}*",d:"Haldusorgani või kohtu korraldus teha midagi või hoiduda millestki, nt ettekirjutus riigist lahkuda."},
+ {k:"jarelev",t:"Järelevalve",re:"järelevalv\\p{L}*",d:"Teise asutuse tegevuse õiguspärasuse ja otstarbekuse kontroll, nt ministeerium oma valitsemisala ameti üle."},
+ {k:"heausk",t:"Heausksus",re:"heauskse\\p{L}*",d:"Ausalt ja eesmärgipäraselt tegutsemine, mitte kahjustamise või menetluse venitamise eesmärgil."},
+ {k:"taides",t:"Täidesaatev võim",re:"täidesaatv\\p{L}* võim\\p{L}*|täitevvõim\\p{L}*",d:"Riigivõimu haru, mis seadusi rakendab: Vabariigi Valitsus, ministeeriumid, ametid (nt PPA) ja inspektsioonid."},
+ {k:"deklar",t:"Deklaratsioon",re:"deklaratsioo\\p{L}*|deklarasioo\\p{L}*",d:"Põhimõtete kokkulepe, mis ei ole formaalselt siduv leping. Erineb konventsioonist ja paktist, mis seovad osalisriike."},
+ {k:"who",t:"WHO",re:"WHO|maailma terviseorganisatsioo\\p{L}*",d:"Maailma Terviseorganisatsioon (World Health Organization), ÜRO allorganisatsioon rahvatervise valdkonnas."},
+ {k:"unesco",t:"UNESCO",re:"UNESCO",d:"Ühinenud Rahvaste Hariduse, Teaduse ja Kultuuri Organisatsioon, ÜRO allorganisatsioon."},
+ {k:"icao",t:"ICAO",re:"ICAO|rahvusvaheli\\p{L}* tsiviillennunduse organisatsioo\\p{L}*",d:"Rahvusvaheline Tsiviillennunduse Organisatsioon (International Civil Aviation Organization), ÜRO allorganisatsioon."},
+ {k:"konv",t:"Konventsioon ja pakt",re:"konventsioo\\p{L}*|pakt\\p{L}*",d:"Rahvusvaheline leping, mis seob riike, kes on selle ratifitseerinud (osalisriigid). Pakt ja konventsioon tähendavad õiguslikult sama asja."}
+];
+const GMAP=Object.fromEntries(GL.map(g=>[g.k,g]));
+const RX=new RegExp("(?<!\\p{L})(?:"+GL.map(g=>"("+g.re+")").join("|")+")(?!\\p{L})","giu");
+const EXCL="button,a,h1,h2,h3,h4,label,input,textarea,th,.eyebrow,.stamp,.cite,.tag,.chapters,.term,.no-terms,#pop,script,style";
+const CONT=".sheet,.quote,.insight,.note,.extra,.view > header,.pcard,.ev,.csi,.gitem,.f,.s,td,li";
+function linkGloss(root){
+  const used=new Map();
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||p.closest(EXCL))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT}});
+  const nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
+  nodes.forEach(node=>{
+    let c=node.parentElement.closest(CONT);if(!c||!root.contains(c))c=root;
+    // li/td sisaldavad sageli lühikest teksti — kasuta nende suuremat konteinerit
+    if(c.matches("li,td")){const up=c.parentElement.closest(".sheet,.extra,.house,.quote,.insight");if(up&&root.contains(up))c=up}
+    if(!used.has(c))used.set(c,new Set());const set=used.get(c);
+    const text=node.nodeValue;RX.lastIndex=0;let m,last=0,frag=null;
+    while((m=RX.exec(text))){
+      const gi=m.slice(1).findIndex(x=>x!==undefined);if(gi<0)continue;
+      const k=GL[gi].k;if(set.has(k))continue;set.add(k);
+      frag=frag||document.createDocumentFragment();
+      frag.append(text.slice(last,m.index));
+      const b=document.createElement("button");b.type="button";b.className="term";b.dataset.k=k;b.setAttribute("aria-expanded","false");b.textContent=m[0];
+      frag.append(b);last=m.index+m[0].length;
+    }
+    if(frag){frag.append(text.slice(last));node.replaceWith(frag)}
+  });
+}
+/* ================= SÄTTED ================= */
+/* x: lõiked [silt, tekst] täpselt kursuse materjali järgi. part: materjalis on ainult osa. sum: sätet materjalis ei ole — minu sisukokkuvõte. */
+const LAWNAME={PS:"Eesti Vabariigi põhiseadus",HMS:"Haldusmenetluse seadus",HKMS:"Halduskohtumenetluse seadustik","EIÕK":"Inimõiguste ja põhivabaduste kaitse konventsioon",P4:"Inimõiguste ja põhivabaduste kaitse konventsiooni protokoll nr 4",P7:"Inimõiguste ja põhivabaduste kaitse konventsiooni protokoll nr 7","KPÕRP":"Kodaniku- ja poliitiliste õiguste rahvusvaheline pakt","IÕÜD":"Inimõiguste ülddeklaratsioon",PVK:"Piinamise ning muu julma, ebainimliku või inimväärikust alandava kohtlemise ja karistamise vastane konventsioon","LÕK":"Lapse õiguste konventsioon",PAG:"Pagulasseisundi konventsioon (ja 1967. aasta protokoll)",HARTA:"Euroopa Liidu põhiõiguste harta"};
+const LAWDISP={PS:"PS",HMS:"HMS",HKMS:"HKMS","EIÕK":"EIÕK",P4:"EIÕK protokoll nr 4",P7:"EIÕK protokoll nr 7","KPÕRP":"KPÕRP","IÕÜD":"IÕÜD",PVK:"PVK","LÕK":"LÕK",PAG:"Pagulasseisundi konv.",HARTA:"EL harta"};
+const HARTA_OLD={61:1,63:3,64:4,66:6,67:7,81:21,107:47};
+const LAW={
+ "PS|1":{x:[["1","Eesti on iseseisev ja sõltumatu demokraatlik vabariik, kus kõrgeima riigivõimu kandja on rahvas."],["2","Eesti iseseisvus ja sõltumatus on aegumatu ning võõrandamatu."]]},
+ "PS|3":{x:[["1","Riigivõimu teostatakse üksnes põhiseaduse ja sellega kooskõlas olevate seaduste alusel. Rahvusvahelise õiguse üldtunnustatud põhimõtted ja normid on Eesti õigussüsteemi lahutamatu osa."]],part:1},
+ "PS|9":{x:[["1","Põhiseaduses loetletud kõigi ja igaühe õigused, vabadused ja kohustused on võrdselt nii Eesti kodanikel kui ka Eestis viibivatel välisriikide kodanikel ja kodakondsuseta isikutel."]],part:1},
+ "PS|10":{x:[["","Käesolevas peatükis loetletud õigused, vabadused ja kohustused ei välista muid õigusi, vabadusi ega kohustusi, mis tulenevad põhiseaduse mõttest või on sellega kooskõlas ja vastavad inimväärikuse ning sotsiaalse ja demokraatliku õigusriigi põhimõtetele."]]},
+ "PS|11":{x:[["","Õigusi ja vabadusi tohib piirata ainult kooskõlas põhiseadusega. Need piirangud peavad olema demokraatlikus ühiskonnas vajalikud ega tohi moonutada piiratavate õiguste ja vabaduste olemust."]]},
+ "PS|12":{x:[["1","Kõik on seaduse ees võrdsed. Kedagi ei tohi diskrimineerida rahvuse, rassi, nahavärvuse, soo, keele, päritolu, usutunnistuse, poliitiliste või muude veendumuste, samuti varalise ja sotsiaalse seisundi või muude asjaolude tõttu."]],part:1},
+ "PS|14":{x:[["","Õiguste ja vabaduste tagamine on seadusandliku, täidesaatva ja kohtuvõimu ning kohalike omavalitsuste kohustus."]]},
+ "PS|15":{x:[["1","Igaühel on õigus pöörduda oma õiguste ja vabaduste rikkumise korral kohtusse. Igaüks võib oma kohtuasja läbivaatamisel nõuda mis tahes asjassepuutuva seaduse, muu õigusakti või toimingu põhiseadusevastaseks tunnistamist."]],part:1},
+ "PS|18":{x:[["1","Kedagi ei tohi piinata, julmalt või väärikust alandavalt kohelda ega karistada."],["2","Kedagi ei tohi tema vaba tahte vastaselt allutada meditsiini- ega teaduskatsetele."]]},
+ "PS|26":{x:[["","Igaühel on õigus perekonna- ja eraelu puutumatusele. Riigiasutused, kohalikud omavalitsused ja nende ametiisikud ei tohi kellegi perekonna- ega eraellu sekkuda muidu, kui seaduses sätestatud juhtudel ja korras tervise, kõlbluse, avaliku korra või teiste inimeste õiguste ja vabaduste kaitseks, kuriteo tõkestamiseks või kurjategija tabamiseks."]]},
+ "PS|27":{x:[["1","Perekond rahva püsimise ja kasvamise ning ühiskonna alusena on riigi kaitse all."],["2","Abikaasad on võrdõiguslikud."],["3","Vanematel on õigus ja kohustus kasvatada oma lapsi ja hoolitseda nende eest."],["4","Seadus sätestab vanemate ja laste kaitse."],["5","Perekond on kohustatud hoolitsema oma abivajavate liikmete eest."]]},
+ "PS|40":{x:[["1","Igaühel on südametunnistuse-, usu- ja mõttevabadus."],["2","Kuulumine kirikutesse ja usuühingutesse on vaba. Riigikirikut ei ole."],["3","Igaühel on vabadus nii üksinda kui ka koos teistega, avalikult või eraviisiliselt täita usutalitusi, kui see ei kahjusta avalikku korda, tervist ega kõlblust."]]},
+ "PS|55":{x:[["","Eestis viibivad teiste riikide kodanikud ja kodakondsuseta isikud on kohustatud järgima Eesti põhiseaduslikku korda."]]},
+ "PS|20":{sum:"Lõige 1 ütleb: igaühel on õigus vabadusele ja isikupuutumatusele. Lõige 2 loetleb ammendavalt juhud, mil vabaduse võib võtta (sh välismaalase kinnipidamine ebaseadusliku Eestisse asumise takistamiseks, Eestist väljasaatmiseks või välisriigile väljaandmiseks). Materjalis on selle koha peal kogemata korratud § 18."},
+ "PS|21":{sum:"Vabaduse võtmisel tuleb isikule viivitamata teatada talle arusaadavas keeles ja viisil vabaduse võtmise põhjus ja tema õigused ning anda võimalus teatada lähedastele. Kauem kui 48 tundi võib vabadust võtta ainult kohtu loal."},
+ "PS|33":{sum:"Kodu on puutumatu. Kodusse, valdusse või töökohta võib tungida ja seal läbiotsimist teha ainult seaduses sätestatud juhtudel ja korras."},
+ "PS|36":{sum:"Ühtki Eesti kodanikku ei tohi Eestist välja saata ega takistada Eestisse asumast. Eesti kodanikku tohib välisriigile välja anda ainult välislepingus ettenähtud juhtudel ja korras."},
+ "PS|43":{sum:"Igaühel on õigus posti, telegraafi, telefoni või muul üldkasutataval teel edastatavate sõnumite saladusele. Erandid on lubatud kohtu loal seaduses sätestatud juhtudel ja korras."},
+ "PS|48":{sum:"Erakondadesse võivad kuuluda ainult Eesti kodanikud."},
+ "PS|57":{sum:"Hääleõigus (Riigikogu valimistel) on 18-aastaseks saanud Eesti kodanikul."},
+ "PS|123":{sum:"Eesti ei sõlmi põhiseadusega vastuolus olevaid välislepinguid. Kui Eesti seadused või muud aktid on vastuolus Riigikogu ratifitseeritud välislepinguga, kohaldatakse välislepingu sätteid."},
+
+ "HMS|1":{t:"Seaduse ülesanne",x:[["","Käesolev seadus on suunatud isiku õiguste kaitse tagamisele ühtlase, isiku osalust ja kohtulikku kontrolli võimaldava haldusmenetluse korra loomise teel."]]},
+ "HMS|2":{t:"Haldusmenetluse mõiste",x:[["1","Haldusmenetlus on haldusorgani (§ 8) tegevus määruse (§ 88) või haldusakti (§-d 51 ja 52) andmisel, toimingu (§ 106) sooritamisel või halduslepingu (§ 95) sõlmimisel."],["2","Tööstusomandi esemele õiguskaitse andmise menetlus, riigihangete teostamine ja vaidlustuste lahendamine riigihangete seaduse tähenduses ning väärteomenetlus ja süütegude kohtueelne uurimine ei ole haldusmenetlus käesoleva seaduse tähenduses."]]},
+ "HMS|3":{t:"Õiguste kaitse",x:[["1","Haldusmenetluses võib piirata isiku põhiõigusi ja -vabadusi ning tema muid subjektiivseid õigusi ainult seaduse alusel."],["2","Halduse õigusakt ja toiming peab olema kohane, vajalik ning proportsionaalne seatud eesmärgi suhtes."]]},
+ "HMS|4":{t:"Kaalutlusõigus",x:[["1","Kaalutlusõigus (diskretsioon) on haldusorganile seadusega antud volitus kaaluda otsustuse tegemist või valida erinevate otsustuste vahel."],["2","Kaalutlusõigust tuleb teostada kooskõlas volituse piiride, kaalutlusõiguse eesmärgi ning õiguse üldpõhimõtetega, arvestades olulisi asjaolusid ning kaaludes põhjendatud huve."]]},
+ "HMS|5":{t:"Vormivabadus ja eesmärgipärasus",x:[["1","Menetlustoimingu vormi ja muud haldusmenetluse üksikasjad määrab haldusorgan kaalutlusõiguse alusel, kui seaduse või määrusega ei ole sätestatud teisiti."],["2","Haldusmenetlus viiakse läbi eesmärgipäraselt ja efektiivselt, samuti võimalikult lihtsalt ja kiirelt, vältides üleliigseid kulutusi ja ebameeldivusi isikutele."],["3","Menetlustoimingute sooritamise eest võib haldusorgan tasu võtta üksnes seaduses sätestatud juhtudel ja suuruses."],["4","Menetlustoimingud viiakse läbi viivituseta, kuid mitte hiljem kui seaduses või määruses sätestatud tähtaja jooksul."],["5","Kui haldusmenetlust reguleerivad õigusnormid muutuvad menetluse ajal, kohaldatakse menetluse alguses kehtinud õigusnorme."],["6","Elektrooniline asjaajamine on haldusmenetluses võrdsustatud kirjaliku asjaajamisega, võttes arvesse elektroonilisest asjaajamisest tulenevaid erisusi. Digitaalallkirja ja e-templit kasutatakse haldusmenetluses e-identimise ja e-tehingute usaldusteenuste seaduses ning teistes õigusaktides sätestatud korras."]]},
+ "HMS|6":{t:"Uurimispõhimõte",x:[["","Haldusorgan on kohustatud välja selgitama menetletavas asjas olulise tähendusega asjaolud ja vajaduse korral koguma selleks tõendeid oma algatusel."]]},
+ "HMS|7":{t:"Avalikkus ja andmekaitse",x:[["1","Haldusmenetlus on avalik."],["2","[materjalis tekstist välja jäetud]"],["3","Haldusorgan on kohustatud hoidma riigi- ja ärisaladust ning hoidma saladuses salastatud välisteabe ja asutusesiseseks kasutamiseks tunnistatud andmed."],["4","Haldusmenetluses tuleb järgida Euroopa Parlamendi ja nõukogu määrusest (EL) 2016/679 füüsiliste isikute kaitse kohta isikuandmete töötlemisel ja selliste andmete vaba liikumise ning direktiivi 95/46/EÜ kehtetuks tunnistamise kohta (isikuandmete kaitse üldmäärus) (ELT L 119, 04.05.2016, lk 1–88) ja isikuandmete kaitse seadusest tulenevat isikuandmete töötlemise korda, arvestades seaduses sätestatud erisusi."],["5","Haldusorgan võib haldusmenetluses haldusakti andmise, toimingu tegemise või halduslepingu sõlmimise eesmärgil töödelda isikuandmeid menetletavas asjas vajalike asjaolude kohta, kui seadusega või selle alusel antud õigusaktidega ei ole ette nähtud teisiti."]]},
+ "HMS|8":{t:"Haldusorgan",sum:"Haldusorgan on iga asutus, kogu või isik, kes on seaduse, määruse või halduslepingu alusel volitatud täitma avalikke haldusülesandeid."},
+ "HMS|40":{t:"Isiku arvamuse ja vastuväidete ärakuulamine",sum:"Enne haldusakti andmist tuleb menetlusosalisele anda võimalus esitada asja kohta oma arvamus ja vastuväited. Seadus loetleb juhud, mil ärakuulamisest võib loobuda."},
+ "HMS|51":{t:"Haldusakti mõiste",sum:"Haldusakt on haldusorgani poolt avalik-õiguslikus suhtes üksikjuhtumi reguleerimiseks antud korraldus, otsus, ettekirjutus, käskkiri või muu õigusakt, mis on suunatud isikute õiguste ja kohustuste tekitamisele, muutmisele või lõpetamisele."},
+ "HMS|56":{t:"Haldusakti põhjendamine",sum:"Kirjalik haldusakt peab olema põhjendatud. Põhjenduses tuuakse välja akti andmise faktiline ja õiguslik alus; kaalutlusotsuse puhul ka kaalutlused, millest lähtuti."},
+ "HMS|63":{t:"Haldusakti tühisus",sum:"Tühine haldusakt ei kehti ja seda ei pea täitma. Seadus loetleb tühisuse alused, näiteks kui akti andis pädevuseta haldusorgan, kui aktist ei nähtu andjat või kui aktil on muu ilmselge oluline viga."},
+ "HMS|75":{t:"Vaide esitamise tähtaeg",sum:"Vaide võib esitada 30 päeva jooksul päevast, millal isik vaidlustatavast haldusaktist või toimingust teada sai või oleks pidanud teada saama, kui seadus ei sätesta teisiti."},
+ "HMS|88":{t:"Määruse mõiste",sum:"Määrus on haldusorgani poolt piiritlemata arvu juhtude reguleerimiseks antud õigusakt (üldakt)."},
+ "HMS|95":{t:"Halduslepingu mõiste",sum:"Haldusleping on avalik-õigusliku suhte tekitamiseks, muutmiseks või lõpetamiseks sõlmitud leping."},
+ "HMS|106":{t:"Toimingu mõiste",sum:"Toiming on haldusorgani avalik-õiguslik tegevus, mis ei ole haldusakti ega määruse andmine."},
+
+ "HKMS|2":{t:"Halduskohtumenetluse ülesanne ja üldpõhimõtted",x:[["1","Halduskohtumenetluse ülesanne on eelkõige isikute õiguste kaitse õigusvastase tegevuse eest täidesaatva võimu teostamisel."],["2","Haldusasja (edaspidi ka asi) peab lahendama sõltumatu ja erapooletu kohus õigesti, ausalt, mõistliku aja jooksul ja võimalikult väikeste kuludega."],["3","Kohus lahendab asja üksnes kaebuses või seaduses sätestatud muus avalduses nõutud ulatuses. Avalduse esitamise otsustab menetlusosaline omal äranägemisel."],["4","Kohus tagab omal algatusel asja lahendamiseks oluliste asjaolude väljaselgitamise, kogudes vajaduse korral tõendeid ise või tehes nende esitamise kohustuseks menetlusosalistele. Kohus tõlgendab menetlusosaliste avaldusi ja lähtub nende lahendamisel esitaja tegelikust tahtest."],["5","Kohus tagab igas menetlusstaadiumis oma selgitustega, et menetlusosalise huvide kaitseks vajalik avaldus ega tõend ei jääks esitamata õigusliku kogenematuse tõttu ning avalduse läbivaatamist takistavad vormivead kõrvaldatakse."],["6","Kohus tagab kõigis asja lahendamiseks olulistes küsimustes menetlusosalistele tõhusa ja võrdse võimaluse esitada ja põhjendada oma seisukohti ning vaielda vastu teiste menetlusosaliste seisukohtadele või toetada neid."],["7","Halduskohtumenetlus on avalik, kui seadus ei sätesta teisiti."]]},
+ "HKMS|5":{t:"Halduskohtu volitused",x:[["1","Kaebuse rahuldamisel on kohtul otsuse resolutsioonis õigus: 1) tühistada haldusakt osaliselt või täielikult; 2) kohustada haldusakti andma või toimingut tegema; 3) keelata haldusakti andmine või toimingu tegemine; 4) mõista välja hüvitis avalik-õiguslikus suhtes tekitatud kahju eest; 5) teha ettekirjutus haldusakti või toimingu tagajärgede kõrvaldamise kohta; 6) teha kindlaks haldusakti tühisus, haldusakti või toimingu õigusvastasus või avalik-õiguslikus suhtes tähtsust omav faktiline asjaolu."],["2","Kui haldusaktis sisaldub või haldusakti alusel on tehtud vastustaja eraõiguslik tahteavaldus, võib kohus koos haldusakti tühistamisega teha otsuse resolutsioonis kindlaks ka sellise tehingu tühisuse, mille tegemisele see tahteavaldus oli suunatud."],["3","Käesoleva paragrahvi lõike 1 punktides 1–5 loetletud volitusi rakendab kohus, arvestades riigivastutuse seaduses sätestatut."],["4","Käesoleva paragrahvi lõikes 1 sätestatud volitusi võib kohus rakendada nii koos kui ka eraldi."]]},
+ "HKMS|6":{t:"Haldusakt ja toiming",x:[["1","Halduskohtumenetluses loetakse haldusaktiks haldusakt haldusmenetluse seaduse § 51 tähenduses, haldusleping haldusmenetluse seaduse § 95 tähenduses, samuti üksikjuhtumit reguleeriv halduse siseakt."],["2","Halduskohtumenetluses loetakse haldusorgani toiminguks haldusorgani poolt haldusmenetluses tehtud toiming, samuti haldusorgani tegevusetus ja viivitus avalik-õiguslikus suhtes."]]},
+ "HKMS|15":{t:"Menetlusosaliste liigid",x:[["1","Menetlusosalised on: 1) pooled (kaebaja ja vastustaja); 2) kolmas isik; 3) kaasatud haldusorgan."],["2","Riigi või kohaliku omavalitsuse haldusorgan tegutseb menetlusosalisena riigi või kohaliku omavalitsuse üksuse nimel."],["3","Haldusorganiks loetakse halduskohtumenetluses haldusorganid haldusmenetluse seaduse § 8 lõike 1 tähenduses."]]},
+ "HKMS|16":{t:"Kaebaja",x:[["","Kaebaja on isik või isikute ühendus, kes on esitanud halduskohtule kaebuse. Isikute ühendus saab olla kaebajaks vaid seaduses sätestatud juhul."]]},
+ "HKMS|17":{t:"Vastustaja",x:[["1","Vastustaja on Vabariigi Valitsus, peaminister, minister, riigiasutus, kohaliku omavalitsuse üksus, avalik-õiguslik juriidiline isik või avalikku ülesannet enda nimel täitev eraõiguslik juriidiline või füüsiline isik, kelle tegevuse peale on esitatud kaebus või kellega kaebajal on tekkinud või võib kõige tõenäolisemalt tekkida vaidlus asjaolu üle, mille tuvastamist kaebuses taotletakse."],["2","Riigiasutus on vastustaja ka siis, kui vaidlustatakse tema koosseisu kuuluva ametiisiku või kollegiaalorgani tegevust. Kui kaebaja vaidlustab riigi sellise ametiisiku või kollegiaalorgani tegevust, kes ei kuulu ühegi asutuse koosseisu, on vastustajaks ametiisik või kollegiaalorgan."],["3","Kohtulahendiga tekitatud kahju hüvitamise nõude puhul on vastustajaks Justiitsministeerium. Seadusega ja seaduse andmata jätmisega tekitatud kahju hüvitamise nõude puhul on vastustajaks ministeerium, kelle valitsemisalasse seadus kuulub."],["4","Seadus võib sätestada käesoleva paragrahvi lõigete 1–3 suhtes erandid."]]},
+ "HKMS|20":{t:"Kolmas isik",x:[["1","Halduskohus kaasab isiku, kes ei ole pool, kolmanda isikuna menetlusse, kui kohtulahendiga võidakse otsustada tema õiguste või kohustuste üle."],["2","Kolmandal isikul on menetluses pooltega võrdsed õigused ja kohustused, kui käesolev seadustik ei sätesta teisiti."]]},
+ "HKMS|24":{t:"Kaasatud haldusorgan",x:[["1","Halduskohus võib arvamuse andmiseks kaasata menetlusse haldusorgani: 1) kes teostab vastustaja üle järelevalvet; 2) kelle ülesandeid vaidluse ese puudutab; 3) kes on avaldanud või oleks pidanud avaldama arvamust või on andnud kooskõlastuse või oleks pidanud andma kooskõlastuse haldusmenetluses, millest vaidlus tekkis; 4) kelle arvamus või kelle valduses olev teave võib muul põhjusel aidata kaasa asja lahendamisele."],["2","Kaasatud haldusorganil on kõik käesolevas seadustikus sätestatud menetlusosalise õigused, välja arvatud õigused ja kohustused, mis on kehtestatud üksnes poolte ja kolmanda isiku suhtes."]]},
+ "HKMS|28":{t:"Menetlusosalise kohustused",x:[["1","Menetlusosaline on kohustatud kasutama oma menetlusõigusi heauskselt."],["2","Kohus ei luba menetlusosalisel ega tema esindajal või nõustajal oma õigusi kuritarvitada, menetlust venitada ega kohut eksitusse viia. Asja õiget, kiiret ja võimalikult väikeste kuludega menetlemist pahatahtlikult takistavat või kirjalikus avalduses end sündsusetult või kohtu või teise menetlusosalise suhtes lugupidamatult väljendanud menetlusosalist, esindajat või nõustajat võib kohus trahvida."],["3","Menetlusosaline ja tema esindaja peavad kohtule ja teisele menetlusosalisele viivitamata teatama oma aadressi ja sidevahendi andmete muutumisest, sealhulgas andmete ajutisest muutumisest, kohtumenetluse kestel."],["4","Menetlusosaline on kohustatud kohtule tähtaegselt ja kohtu poolt määratud vormis esitama kohtu nõutud arvamused ja tõendid."],["5","Menetlusosaline või tema seaduslik esindaja on kohustatud ilmuma kohtuistungile või muule menetlustoimingule isiklikult, kui kohus seda nõuab."]]},
+ "HKMS|37":{t:"Kaebuse liigid",sum:"Kaebusega võib taotleda haldusakti tühistamist (tühistamiskaebus), haldusakti andmist või toimingu tegemist (kohustamiskaebus), haldusakti andmise või toimingu keelamist (keelamiskaebus), kahju hüvitamist (hüvitamiskaebus), tagajärgede kõrvaldamist (heastamiskaebus) või tühisuse, õigusvastasuse või faktilise asjaolu tuvastamist (tuvastamiskaebus)."},
+ "HKMS|46":{t:"Kaebuse esitamise tähtaeg",sum:"Tühistamiskaebuse võib esitada 30 päeva jooksul haldusakti teatavakstegemisest. Kohustamiskaebusele kehtib samuti 30-päevane tähtaeg; muudele kaebustele kehtivad seaduses sätestatud muud tähtajad."},
+
+ "EIÕK|3":{t:"Piinamise keelamine",x:[["","Kedagi ei või piinata ega ebainimlikult või alandavalt kohelda ega karistada."]]},
+ "EIÕK|5":{t:"Õigus isikuvabadusele ja -puutumatusele",x:[["1","Igaühel on õigus isikuvabadusele ja -puutumatusele. Kelleltki ei või võtta tema vabadust, välja arvatud seaduses kindlaksmääratud korras järgmistel juhtudel: […] f) seaduslik vahistamine või kinnipidamine, et vältida isiku loata sissesõitu riiki või et võtta meetmeid isiku väljasaatmiseks või -andmiseks."],["2","Igale vahistatule teatatakse talle arusaadavas keeles viivitamata tema vahistamise põhjused ja kõik tema vastu esitatud süüdistused."],["4","Igaühel, kellelt on võetud vabadus vahistamise või kinnipidamisega, on õigus taotleda menetlust, milles kohus otsustaks kiires korras tema kinnipidamise õiguspärasuse ning korraldaks tema vabastamise, kui kinnipidamine on õigusvastane."]],part:1},
+ "EIÕK|8":{t:"Õigus era- ja perekonnaelu austamisele",x:[["1","Igaühel on õigus sellele, et austataks tema era- ja perekonnaelu ja kodu ning sõnumite saladust."],["2","Ametivõimud ei sekku selle õiguse kasutamisse muidu, kui kooskõlas seadusega ja kui see on demokraatlikus ühiskonnas vajalik riigi julgeoleku, ühiskondliku turvalisuse või riigi majandusliku heaolu huvides, korratuse või kuriteo ärahoidmiseks, tervise või kõlbluse või kaasinimeste õiguste ja vabaduste kaitseks."]]},
+ "EIÕK|9":{t:"Mõtte-, südametunnistuse- ja usuvabadus",x:[["1","Igaühel on õigus mõtte-, südametunnistuse ja usuvabadusele; see õigus kätkeb vabadust muuta oma usku või veendumusi, samuti vabadust kuulutada usku või veendumusi nii üksi kui ka koos teistega, avalikult või eraviisiliselt kultuse, õpetamise, tava ja kombetalituse kaudu."],["2","Vabadust kuulutada oma usku või veendumusi võib piirata üksnes seadusega ja juhul, kui see on demokraatlikus ühiskonnas vajalik ühiskondliku turvalisuse huvides, avaliku korra, tervise või kõlbluse või kaasinimeste õiguste ja vabaduste kaitseks."]]},
+ "EIÕK|14":{t:"Diskrimineerimise keelamine",x:[["","Käesolevas konventsioonis sätestatud õiguste ja vabaduste kasutamine tagatakse ilma mingi diskrimineerimiseta selliste tunnuste alusel nagu sugu, rass, nahavärvus, keel, usutunnistus, poliitilised või muud veendumused, rahvuslik või sotsiaalne päritolu, rahvusvähemusse kuuluvus, varanduslik, sünni- või muu seisund."]]},
+ "EIÕK|12":{t:"Õigus abielluda",sum:"Abiellumisikka jõudnud meestel ja naistel on õigus abielluda ja luua perekond vastavalt seda õigust reguleerivatele siseriiklikele seadustele."},
+ "P4|4":{t:"Välismaalaste sunniviisilise kollektiivse väljasaatmise keelamine",x:[["","Keelatud on välismaalaste sunniviisiline kollektiivne väljasaatmine."]]},
+ "P7|1":{t:"Välismaalaste väljasaatmisega seotud protseduurilised kaitseabinõud",x:[["1","Välismaalast, kes elab riigi territooriumil õiguspäraselt, ei või välja saata teisiti kui seaduse alusel tehtud otsuse täitmiseks ning tal on õigus: a) esitada põhjendusi enda väljasaatmise vastu; b) tema asja uuesti läbivaatamisele; c) olla neil eesmärkidel esindatud kompetentse võimukandja või selle poolt volitatud isiku või isikute ees."],["2","Enne käesoleva artikli lõike 1 punktides a, b, ja c sätestatud õiguste kasutamist võib välismaalase välja saata siis, kui see on vajalik avaliku korra huvides või põhjendatud riigi julgeoleku huvidega."]]},
+
+ "IÕÜD|2":{x:[["1","Igal inimesel peavad olema kõik käesoleva deklaratsiooniga välja kuulutatud õigused ja vabadused, olenemata rassist, nahavärvusest, soost, usulisest, poliitilisest või muudest veendumustest, rahvuslikust või sotsiaalsest päritolust, varanduslikust, seisuslikust või muust seisundist."],["2","Lisaks sellele ei tohi inimeste vahel vahet teha riigi või territooriumi poliitilise, õigusliku või rahvusvahelise seisundi põhjal, olenemata sellest, kas territoorium, mille kodanik ollakse, on sõltumatu, hooldusalune või mõnel muul viisil oma suveräänsuses piiratud."]]},
+ "IÕÜD|5":{x:[["","Kellegi suhtes ei tohi rakendada piinamisi või julma, ebainimlikku, tema väärikust alandavat kohtlemist või karistust."]]},
+ "IÕÜD|12":{x:[["","Kellegi isiklikku ja perekonnaellu ei või meelevaldselt vahele segada, kellegi korteripuutumatust, kirjavahetuse saladust või au ja reputatsiooni ei tohi meelevaldselt määrida. Igal inimesel on õigus seaduse kaitsele selliste vahelesegamiste ja rikkumiste eest."]]},
+ "IÕÜD|16":{x:[["1","Täisealiseks saanud meestel ja naistel on õigus ilma igasuguste kitsendusteta rassi, rahvuse või usu põhjal abielluda ja perekonda asutada. Neil on võrdsed õigused abiellu astumise suhtes, abielus olemise ja abielu lahutamise ajal."],["2","Abielu võib sõlmida vaid mõlema abielluva poole vabatahtlikul ja täielikul nõusolekul."],["3","Perekond on ühiskonna loomulik ja põhiline rakuke ning tal on õigus ühiskonna ja riigi kaitsele."]]},
+ "IÕÜD|18":{x:[["","Igal inimesel on õigus mõtte-, südametunnistuse ja usuvabadusele; see õigus kätkeb vabadust oma usku või veendumusi muuta, samuti vabadust vabalt kuulutuada oma usku või veendumusi nii üksikult kui ka koos teistega avalikult või eraviisiliselt õpetuse, jumalateenistuse ja religioossete ning rituaalsete kombetalituste kaudu."]]},
+ "IÕÜD|7":{sum:"Kõik inimesed on seaduse ees võrdsed ja neil on õigus ilma igasuguse vahetegemiseta seaduse võrdsele kaitsele, sealhulgas kaitsele diskrimineerimise ja sellele õhutamise eest."},
+ "KPÕRP|7":{x:[["","Kellegi suhtes ei või rakendada piinamist või julma, ebainimlikku, tema väärikust alandavat kohtlemist või karistust. Muu hulgas ei tohi ühtegi isikut tema vabatahtliku nõusolekuta allutada meditsiinilistele või teaduslikele katsetele."]]},
+ "KPÕRP|17":{x:[["1","Kellegi isiklikku või perekonnaellu ei tohi meelevaldselt või ebaseaduslikult vahele segada, kellegi korteripuutumatusele, kirjavahetuse saladusele, aule ja reputatsioonile ei tohi meelevaldselt või ebaseaduslikult kallale kippuda."],["2","Igal inimesel on õigus seaduse kaitsele selliste vahelesegamiste ja kallalekippumiste eest."]]},
+ "KPÕRP|18":{x:[["1","Igal inimesel on õigus mõtte, südametunnistuse ja usuvabadusele. See õigus kätkeb vabadust omada või vastu võtta usku või veendumusi omal valikul ja vabadust tunnistada oma usku või veendumusi nii üksikult kui ka koos teistega avalikult või eraviisiliselt kultuse teenimise, religioossete ja rituaalsete tavade ja õpetuste täitmise näol."]],part:1,partNote:"Materjalis on ainult lõige 1. Lõige 3 (materjalis ei ole) lubab usu tunnistamise vabadust piirata ainult seadusega ja siis, kui see on vajalik avaliku turvalisuse, korra, tervise, kõlbluse või teiste põhiõiguste ja -vabaduste kaitseks."},
+ "KPÕRP|26":{x:[["","Kõik inimesed on seaduse ees võrdsed ja neil on ilma igasuguse diskrimineerimiseta õigus seaduse võrdsele kaitsele. Selles suhtes tuleb igasugune diskrimineerimine keelata seadusega ja seadus peab kõikidele isikutele garanteerima võrdse ja efektiivse kaitse igasuguse diskrimineerimise vastu, olgu see siis rassi, nahavärvuse, soo, keele, usutunnistuse, poliitiliste või muude tõekspidamiste, rahvusliku või sotsiaalse päritolu, varandusliku seisundi, sünni või muu asjaolu põhjal."]]},
+ "PVK|3":{x:[["1","Osalisriik ei tohi ühtki isikut teise riiki välja või tagasi saata («refouler») ega teda teisele riigile välja anda, kui on põhjendatud alus arvata, et seal võib teda ähvardada piinamine."]],part:1},
+ "PVK|1":{sum:"Piinamine on igasugune tegu, millega isikule tahtlikult tekitatakse tugevat füüsilist või vaimset valu või kannatusi, et saada temalt või kolmandalt isikult teavet või ülestunnistust, teda karistada, hirmutada või sundida, või mis tahes diskrimineerimisel põhineval põhjusel, kui seda teeb ametiisik või see toimub tema õhutusel, nõusolekul või vaikival nõusolekul."},
+ "LÕK|9":{x:[["1","Osalisriigid tagavad, et last ei eraldata vanematest vastu nende tahtmist, välja arvatud juhul, kui pädevad ametivõimud, kelle otsuseid võib kohtus uuesti läbi vaadata, otsustavad kooskõlas kehtivate seaduste ja menetlusega, et niisugune eraldamine toimub lapse huvides. Niisugune otsus on vajalik erijuhtudel, nagu siis, kui vanemad kohtlevad last julmalt või jätavad ta hooletusse või kui vanemad elavad lahus ja tuleb langetada otsus lapse elukoha suhtes."],["3","Osalisriigid austavad ühest või mõlemast vanemast lahutatud lapse õigust säilitada regulaarsed isiklikud suhted ja otsene kontakt mõlema vanemaga, kui see ei ole lapse huvidega vastuolus."]],part:1},
+ "LÕK|10":{x:[["1","Vastavalt artikli 9 lõikes 1 toodud osalisriikide kohustusele peavad osalisriigid lapse või tema vanemate poolt perekonna taasühinemise eesmärgil esitatud avalduse osalisriiki sissesõiduks või sealt väljasõiduks lahendama positiivselt, humaanselt ja kiiresti. Osalisriigid tagavad, et sellise palve esitamine ei põhjusta avaldajatele ja nende perekonnaliikmetele ebasoovitavaid tagajärgi."],["2","Lapsel, kelle vanemad elavad eri riikides, on õigus säilitada regulaarsed isiklikud suhted ja otsesed kontaktid mõlema vanemaga, välja arvatud erijuhtumitel. Sel eesmärgil ja kooskõlas osavõtvate riikide kohustusega vastavalt artikli 9 lõikele 1 austavad osalisriigid lapse või tema vanemate õigust lahkuda ükskõik millisest riigist, kaasa arvatud oma maalt, ja tagasi pöörduda oma maale. Õigusele lahkuda ükskõik millisest riigist kohaldatakse ainult niisuguseid piiranguid, mis on seadusega ette nähtud ja mis on vajalikud riikliku julgeoleku, avaliku korra (ordre public), rahva tervise, kõlbluse või teiste õiguste ja vabaduste kaitseks ning on kooskõlas teiste käesolevas konventsioonis tunnustatud õigustega."]]},
+ "PAG|1":{t:"Pagulase-mõiste määratlemine",x:[["A","Konventsioonis käsitatakse pagulasena isikut, (2) kes [--] põhjendatult kartes tagakiusamist rassi, usu, rahvuse, sotsiaalsesse gruppi kuulumise või poliitiliste veendumuste pärast viibib väljaspool kodakondsusjärgset riiki ega suuda või kartuse tõttu ei taha saada sellelt riigilt kaitset või kes nimetatud sündmuste tagajärjel viibib kodakondsusetuna väljaspool oma endist asukohariiki ega suuda või kartuse tõttu ei taha sinna tagasi pöörduda. Kui isikul on rohkem kui üks kodakondsus, tähendab tema kodakondsusjärgne riik iga riiki, mille kodanik ta on. Isikut ei või pidada kodakondsusjärgse riigi kaitseta jäetuks, kui ta põhjendatud kartusel rajaneva mõjusa põhjuseta ei ole kasutanud mõne oma kodakondsusjärgse riigi kaitset."],["C","Konventsiooni ei kohaldata jaotises A nimetatud isikule, kui ta (1) on vabatahtlikult võtnud uuesti vastu oma kodakondsusjärgse riigi kaitse; või (2) olles kaotanud kodakondsuse on selle vabatahtlikult uuesti omandanud; või (3) on omandanud uue kodakondsuse ja on oma uue kodakondsuse järgse riigi kaitse all; või (4) on vabatahtlikult naasnud riiki, kust ta oli lahkunud või millest väljapoole ta oli jäänud tagakiusamiskartuse tõttu; või (5) ei saa oma kodakondsusjärgse riigi kaitsest enam keelduda, sest pagulaseks tunnistamise asjaolud on lakanud olemast; seda lõiget ei kohaldata käesoleva artikli jaotise A lõikes 1 käsitletud pagulasele, kel on mõjuva põhjusena kodakondsusjärgse riigi kaitsest keeldumiseks esitada eelnenud tagakiusamine; (6) kodakondsusetuna võib naasta oma asukohariiki, sest pagulaseks tunnistamise asjaolud on lakanud olemast; seda lõiget ei kohaldata käesoleva artikli jaotise A lõikes 1 käsitletud pagulasele, kel on mõjuva põhjusena asukohariiki naasmisest keeldumiseks esitada eelnenud tagakiusamine."],["F","Konventsiooni ei kohaldata isikule, kelle osas on kaalukaid põhjusi arvata, et a) ta on pannud toime rahvusvahelistes õigusaktides määratletud rahuvastase kuriteo, sõjakuriteo või inimsusevastase kuriteo; b) ta on enne varjupaigamaale pagulasena sisselaskmist pannud toime raske mittepoliitilise kuriteo; või c) ta on süüdi ÜRO eesmärkide ja põhimõtetega vastuolus olevate tegude toimepanemises."]],part:1},
+ "PAG|33":{t:"Väljasaatmise või tagasisaatmise keeld",sum:"Osalisriik ei saada pagulast välja ega tagasi riiki, kus tema elu või vabadus oleks ohus rassi, usu, rahvuse, sotsiaalsesse gruppi kuulumise või poliitiliste veendumuste tõttu. Seda kaitset ei saa nõuda pagulane, keda põhjendatult peetakse ohuks riigi julgeolekule või kes on raske kuriteo eest lõplikult süüdi mõistetud ja kujutab ohtu ühiskonnale."},
+ "HARTA|1":{t:"Inimväärikus",old:61,x:[["","Inimväärikus on puutumatu. Seda tuleb austada ja kaitsta."]]},
+ "HARTA|3":{t:"Õigus isikupuutumatusele",old:63,x:[["1","Igaühel on õigus kehalisele ja vaimsele puutumatusele."],["2","Meditsiini ja bioloogia valdkonnas tuleb eelkõige austada järgmisi nõudeid ja keelde: a) asjaomase isiku vaba ja teadliku nõusoleku, mis on antud seaduses ettenähtud korra kohaselt, nõue, b) eugeeniliste, eelkõige isikute valikuga seotud toimingute keeld, c) inimkehast või selle osast kui sellisest rahalise tulu saamise keeld, d) inimeste reproduktiivse kloonimise keeld."]]},
+ "HARTA|4":{t:"Piinamise ning ebainimliku või alandava kohtlemise või karistamise keeld",old:64,x:[["","Kedagi ei tohi piinata ega ebainimlikult või alandavalt kohelda ega karistada."]]},
+ "HARTA|6":{t:"Õigus vabadusele ja turvalisusele",old:66,x:[["","Igaühel on õigus isikuvabadusele ja turvalisusele."]]},
+ "HARTA|7":{t:"Era- ja perekonnaelu austamine",old:67,x:[["","Igaühel on õigus sellele, et austataks tema era- ja perekonnaelu, kodu ja edastatavate sõnumite saladust."]]},
+ "HARTA|9":{t:"Õigus abielluda ja õigus luua perekond",x:[["","Õigus abielluda ja õigus luua perekond tagatakse nende õiguste kasutamist reguleerivate siseriiklike õigusaktide kohaselt."]]},
+ "HARTA|10":{t:"Mõtte-, südametunnistuse- ja usuvabadus",x:[["1","Igaühel on õigus mõtte-, südametunnistuse- ja usuvabadusele. See õigus kätkeb vabadust muuta usku või veendumusi, samuti vabadust kuulutada usku või veendumusi nii üksi kui ka koos teistega, avalikult või eraviisiliselt kultuse, õpetamise, tava ja kombetalituse kaudu."],["2","Õigust keelduda sõjaväeteenistusest oma veendumuste tõttu tunnustatakse selle õiguse kasutamist reguleerivate siseriiklike õigusaktide kohaselt."]]},
+ "HARTA|21":{t:"Diskrimineerimiskeeld",old:81,x:[["1","Keelatud on igasugune diskrimineerimine, sealhulgas diskrimineerimine soo, rassi, nahavärvuse, etnilise või sotsiaalse päritolu, geneetiliste omaduste, keele, usutunnistuse või veendumuste, poliitiliste või muude arvamuste, rahvusvähemusse kuulumise, varalise seisundi, sünnipära, puuete, vanuse või seksuaalse sättumuse tõttu."],["2","Igasugune kodakondsuse alusel diskrimineerimine on põhiseaduse reguleerimisalas keelatud, ilma et eelöeldu piiraks selle erisätete kohaldamist."]]},
+ "HARTA|47":{t:"Õigus tõhusale õiguskaitsevahendile ja õiglasele kohtulikule arutamisele",old:107,x:[["1","Igaühel, kelle liidu õigusega tagatud õigusi või vabadusi rikutakse, on selles artiklis kehtestatud tingimuste kohaselt õigus tõhusale õiguskaitsevahendile kohtus."],["2","Igaühel on õigus õiglasele ja avalikule asja arutamisele mõistliku aja jooksul sõltumatus ja erapooletus seaduse alusel moodustatud kohtus. Igaühel peab olema võimalus saada nõu ja kaitset ning olla esindatud."],["3","Isikule, kellel puuduvad piisavad vahendid, antakse tasuta õigusabi sellises ulatuses, mis tagab talle võimaluse kohtusse pöörduda."]]},
+ "HARTA|19":{t:"Kaitse tagasisaatmise, väljasaatmise või väljaandmise korral",sum:"Lõige 1: „Kollektiivne väljasaatmine on keelatud.“ Lõige 2: kedagi ei tohi tagasi saata, välja saata ega välja anda riiki, kus teda tõsiselt ohustab surmanuhtlus, piinamine või muu ebainimlik või alandav kohtlemine või karistus."},
+ "HARTA|20":{t:"Võrdsus seaduse ees",sum:"Kõik on seaduse ees võrdsed."},
+ "HARTA|41":{t:"Õigus heale haldusele",sum:"Igaühel on õigus, et liidu institutsioonid ja asutused käsitleksid tema asju erapooletult, õiglaselt ja mõistliku aja jooksul. See hõlmab õigust olla ära kuulatud enne endale ebasoodsa meetme võtmist, õigust tutvuda oma toimikuga ning ametiasutuse kohustust oma otsuseid põhjendada."},
+ "HARTA|52":{t:"Õiguste ja põhimõtete ulatus ja tõlgendamine",sum:"Harta õiguste ja vabaduste piiramine peab olema ette nähtud seadusega ja arvestama nende õiguste olemust. Proportsionaalsuse põhimõtte kohaselt võib piiranguid seada ainult siis, kui need on vajalikud ja vastavad liidu üldist huvi pakkuvatele eesmärkidele või teiste isikute õiguste ja vabaduste kaitse vajadusele."}
+};
+const SRC_LINK={PS:"https://www.riigiteataja.ee",HMS:"https://www.riigiteataja.ee",HKMS:"https://www.riigiteataja.ee",HARTA:"https://fra.europa.eu/et/eu-charter/charter/title/ii-jaotis-vabadused"};
+function lawText(k){const L=LAW[k];if(!L||!L.x)return "";const intl=!/^(PS|HMS|HKMS)\|/.test(k);return L.x.map(([lb,tx])=>(intl&&lb&&L.x.length>1?(/^[A-Z]$/.test(lb)?lb+". ":lb+". "):"")+tx).join(" ")}
+
+/* Lühendid: iga esinemine on klõpsatav */
+const ABBR=[["IÕÜD","ioud"],["MSKÕRP","msk"],["KPÕRP","kporp"],["PVK","pvk"],["LÕK","lok"],["EIÕK","eiok"],["EIK","eik"],["EL","el"],["ÜRO","uro"],["HKMS","hkms"],["HMS","hms"],["PS","ps"],["VSS","vss"],["VRKS","vrks"],["PPA","ppa"],["IKÜM","ikum"],["GDPR","ikum"],["WHO","who"],["UNESCO","unesco"],["ICAO","icao"]];
+const ABRX=new RegExp("(?<![\\p{L}\\d])("+ABBR.map(a=>a[0]).join("|")+")(?![\\p{L}\\d])","gu");
+const ABMAP=Object.fromEntries(ABBR);
+
+/* Viited: PS § 18, HMS § 3 lg 2, EIÕK art 5 lg 1 p f, Prot 7 art 1, EL harta II-107, art 1A ... */
+const ACT="PS|HMS|HKMS|EIÕK|KPÕRP|IÕÜD|PVK|LÕK|(?:EL |Liidu |EL põhiõiguste |põhiõiguste )?harta|prot(?:okoll(?:i|iga)?)? (?:nr )?[47]|pagulasseisundi konventsiooni?|piinamisvasta\\p{L}* konventsiooni?|lapse õiguste konventsiooni?";
+const REFRX=new RegExp("(?<![\\p{L}\\d§])(?:("+ACT+")\\s+)?(§\\s*\\d+|art(?:ikkel|ikli)?\\.?\\s*\\d+[A-F]?|II-\\d+)(?:\\s*lg\\s*(\\d+))?(?:\\s*p\\s*([0-9a-z]))?(?![\\p{L}\\d])","giu");
+const ACTRX=new RegExp("(?<![\\p{L}\\d])("+ACT+")(?![\\p{L}])","giu");
+function actKey(a){a=a.toLowerCase();if(a==="ps")return"PS";if(a==="hms")return"HMS";if(a==="hkms")return"HKMS";if(a==="eiõk")return"EIÕK";if(a==="kpõrp")return"KPÕRP";if(a==="iõüd")return"IÕÜD";if(a==="pvk"||a.startsWith("piinamisvasta"))return"PVK";if(a==="lõk"||a.startsWith("lapse"))return"LÕK";if(a.includes("harta"))return"HARTA";if(a.startsWith("prot"))return /4$/.test(a)?"P4":"P7";if(a.startsWith("pagulas"))return"PAG";return null}
+
+const HARD="button,a,label,input,textarea,h1,h2,.stamp,.term,#pop,script,style,.no-terms,.nav,.chapters";
+function textNodes(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(n){if(!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;const p=n.parentElement;if(!p||p.closest(HARD))return NodeFilter.FILTER_REJECT;return NodeFilter.FILTER_ACCEPT}});const a=[];while(w.nextNode())a.push(w.currentNode);return a}
+function mkBtn(txt,cls){const b=document.createElement("button");b.type="button";b.className=cls;b.setAttribute("aria-expanded","false");b.textContent=txt;return b}
+function linkRefs(root){
+  textNodes(root).forEach(node=>{
+    const text=node.nodeValue,par=node.parentElement;let m,last=0,frag=null;REFRX.lastIndex=0;
+    const ments=[...text.matchAll(ACTRX)].map(x=>({i:x.index,k:actKey(x[1])}));
+    const prevAct=(i,dom)=>{for(let j=ments.length-1;j>=0;j--){const x=ments[j];if(x.i<i&&x.k&&(/^(PS|HMS|HKMS)$/.test(x.k)===dom))return x.k}return null};
+    while((m=REFRX.exec(text))){
+      let act=m[1]?actKey(m[1]):null,raw=m[2],lg=m[3]||"",pt=m[4]||"",kind,num;
+      if(/^II-/i.test(raw)){act="HARTA";kind="art";num=String(HARTA_OLD[+raw.slice(3)]||raw.slice(3))}
+      else if(raw[0]==="§"){kind="§";num=raw.replace(/\D/g,"");
+        if(act&&!/^(PS|HMS|HKMS)$/.test(act))act=null;
+        act=act||prevAct(m.index,true)||(par.closest("[data-lp]")||{dataset:{}}).dataset.lp||"PS";}
+      else{kind="art";const mm=raw.match(/(\d+)([A-F]?)$/i);num=mm[1];if(mm[2]&&!lg)lg=mm[2].toUpperCase();
+        if(act&&/^(PS|HMS|HKMS)$/.test(act))act=null;
+        if(mm[2]&&num==="1")act="PAG";
+        act=act||prevAct(m.index,false)||(par.closest("[data-la]")||{dataset:{}}).dataset.la||null;}
+      if(!act||!LAW[act+"|"+num])continue;
+      frag=frag||document.createDocumentFragment();frag.append(text.slice(last,m.index));
+      const b=mkBtn(m[0],"term ref");b.dataset.ref=act+"|"+num;b.dataset.kind=kind;b.dataset.lg=lg;b.dataset.pt=pt;frag.append(b);last=m.index+m[0].length;
+    }
+    if(frag){frag.append(text.slice(last));node.replaceWith(frag)}
+  });
+}
+function linkAbbr(root){
+  textNodes(root).forEach(node=>{
+    const text=node.nodeValue;let m,last=0,frag=null;ABRX.lastIndex=0;
+    while((m=ABRX.exec(text))){const k=ABMAP[m[1]];if(!GMAP[k])continue;frag=frag||document.createDocumentFragment();frag.append(text.slice(last,m.index));const b=mkBtn(m[1],"term");b.dataset.k=k;b.dataset.ab="1";frag.append(b);last=m.index+m[0].length}
+    if(frag){frag.append(text.slice(last));node.replaceWith(frag)}
+  });
+}
+function linkTerms(root){linkRefs(root);linkAbbr(root);linkGloss(root)}
+/* Popover */
+const pop=$("#pop");let popFor=null;
+const esc=t=>t.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function refTitle(act,kind,num,lg,pt){const L=LAW[act+"|"+num];let t=LAWDISP[act]+" "+(kind==="§"?"§ "+num:"art "+num);if(L&&L.old)t+=" (II-"+L.old+")";if(lg)t+=(act==="PAG"?" jaotis ":" lg ")+lg;if(pt)t+=" p "+pt;return t}
+function openPop(btn){
+  const l=$("#popL");const cur=(location.hash||"#ylevaade").slice(1);
+  if(btn.dataset.ref){
+    const [act,num]=btn.dataset.ref.split("|"),L=LAW[btn.dataset.ref],lg=btn.dataset.lg,pt=btn.dataset.pt;
+    if(!L)return;
+    $("#popE").textContent="Säte";
+    $("#popT").textContent=refTitle(act,btn.dataset.kind,num,lg,pt);
+    const dom=/^(PS|HMS|HKMS)$/.test(act);
+    let h=`<p class="sub">${LAWNAME[act]}${L.t?" · "+L.t:""}</p>`;
+    if(L.x){
+      const has=L.x.some(x=>x[0]===lg);
+      h+=`<div class="lgs">${L.x.map(([lb,tx])=>`<span class="lg${lg&&lb===lg?" hit":""}">${lb?`<b>${dom?(act==="PS"?"lg "+lb:"("+lb+")"):lb+"."}</b>`:""}${esc(tx)}</span>`).join("")}</div>`;
+      if(lg&&!has)h+=`<p class="src2">${act==="PAG"?"Jaotist":"Lõiget"} ${lg} kursuse materjalis ei ole.</p>`;
+      if(pt)h+=`<p class="src2">Viide on punktile ${pt}.</p>`;
+      if(L.partNote)h+=`<p class="src2">${L.partNote}</p>`;
+      h+=`<p class="src2">Tekst: kursuse materjal „Inim- ja põhiõigused SKA-s“ (19.11.2024)${L.part&&!L.partNote?"; materjalis on toodud osa sättest":""}.</p>`;
+    }else{
+      h+=`<div class="sumnote"><b>Seda sätet kursuse materjalis ei ole.</b><span>Sisu lühidalt (kokkuvõte, mitte seaduse täpne tekst): ${esc(L.sum)}</span></div>`;
+    }
+    $("#popD").innerHTML=h;
+    const link=SRC_LINK[act]||"https://www.riigiteataja.ee";
+    l.hidden=false;l.href=link;l.target="_blank";l.rel="noopener";l.textContent=(act==="HARTA"?"Kehtiv tekst: EL põhiõiguste harta (FRA) →":"Kehtiv tekst: Riigi Teataja →");
+  }else{
+    const g=GMAP[btn.dataset.k];if(!g)return;
+    $("#popE").textContent=btn.dataset.ab?"Lühend":"Mõiste";
+    $("#popT").textContent=g.t;$("#popD").innerHTML=`<p>${esc(g.d)}</p>`;
+    l.removeAttribute("target");
+    if(g.v&&g.v!==cur){l.hidden=false;l.href="#"+g.v;l.textContent="Ava moodul: "+(VIEWS.find(v=>v.id===g.v)||{}).t+" →"}else l.hidden=true;
+  }
+  if(popFor)popFor.setAttribute("aria-expanded","false");
+  popFor=btn;btn.setAttribute("aria-expanded","true");
+  pop.hidden=false;
+  const r=btn.getBoundingClientRect(),w=pop.offsetWidth,h=pop.offsetHeight;
+  let left=r.left+window.scrollX;left=Math.min(left,window.scrollX+document.documentElement.clientWidth-16-w);left=Math.max(left,window.scrollX+16);
+  let top=r.bottom+window.scrollY+8;
+  if(r.bottom+h+16>window.innerHeight&&r.top-h-8>0)top=r.top+window.scrollY-h-8;
+  pop.style.left=left+"px";pop.style.top=top+"px";
+  const hit=pop.querySelector(".lg.hit");pop.scrollTop=hit?Math.max(0,hit.offsetTop-90):0;
+}
+function closePop(focus){if(pop.hidden)return;pop.hidden=true;if(popFor){popFor.setAttribute("aria-expanded","false");if(focus)popFor.focus()}popFor=null}
+document.addEventListener("click",e=>{
+  const t=e.target.closest(".term");
+  if(t){e.preventDefault();e.stopPropagation();if(popFor===t){closePop()}else openPop(t);return}
+  if(!pop.contains(e.target))closePop();
+});
+$("#popX").addEventListener("click",()=>closePop(true));
+$("#popL").addEventListener("click",()=>closePop());pop.addEventListener("click",e=>e.stopPropagation());
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closePop(true)});
+window.addEventListener("resize",()=>closePop());
+
+/* ================= VIEWS & NAV ================= */
+const VIEWS=[
+ {id:"ylevaade",n:"",t:"Ülevaade",g:null},
+ {id:"raamistik",n:"1",t:"Rahvusvaheline raamistik",g:"I Üldalused"},
+ {id:"seisund",n:"2.1",t:"Isiku õiguslik seisund"},
+ {id:"pohimotted",n:"2.2",t:"Õiguse üldpõhimõtted"},
+ {id:"pohiseadus",n:"2.3",t:"Põhiseadus"},
+ {id:"kaitse",n:"2.4",t:"Õiguskaitsevahendid"},
+ {id:"maatriks",n:"3",t:"Põhiõiguste maatriks"},
+ {id:"vordlus",n:"3",t:"Kõrvutusvaade"},
+ {id:"pagulane",n:"3.1",t:"Pagulane ja refoulement"},
+ {id:"valjasaatmine",n:"3.2",t:"Kinnipidamine ja väljasaatmine"},
+ {id:"hms",n:"HMS",t:"Haldusmenetlus",g:"II Menetlusraamistik"},
+ {id:"hkms",n:"HKMS",t:"Halduskohus"},
+ {id:"kaasus",n:"",t:"Kaasuse skeem",g:"Kordamine"},
+ {id:"sonastik",n:"",t:"Sõnastik"},
+ {id:"kaardid",n:"",t:"Mõistekaardid"}
+];
+const TRACKED=["raamistik","seisund","pohimotted","pohiseadus","kaitse","maatriks","pagulane","valjasaatmine","hms","hkms","kaasus"];
+let done=new Set(store.get("pohi_done",[]).filter(x=>TRACKED.includes(x)));
+let current="ylevaade";
+function markDone(id){if(done.has(id))return;done.add(id);store.set("pohi_done",[...done]);renderNav();const b=$(`[data-view="${id}"] [data-done]`);if(b){b.textContent="Läbitud ✓";b.disabled=true}}
+function renderNav(){
+  const nav=$("#nav");nav.innerHTML="";
+  VIEWS.forEach(v=>{
+    if(v.g){const g=document.createElement("div");g.className="navgroup";g.textContent=v.g;nav.appendChild(g)}
+    const a=document.createElement("a");a.href="#"+v.id;
+    a.innerHTML=`<span class="num">${v.n}</span><span>${v.t}</span><span class="dot ${TRACKED.includes(v.id)?(done.has(v.id)?"done":""):"none"}"></span>`;
+    if(v.id===current)a.setAttribute("aria-current","page");
+    nav.appendChild(a);
+  });
+  $("#progTxt").textContent=`${done.size}/${TRACKED.length}`;
+  $("#progBar").style.width=(done.size/TRACKED.length*100)+"%";
+}
+function show(){
+  closePop();
+  const id=(location.hash||"").slice(1);current=VIEWS.some(v=>v.id===id)?id:"ylevaade";
+  $$(".view").forEach(s=>s.hidden=s.dataset.view!==current);
+  renderNav();
+  const a=$(`.nav a[href="#${current}"]`);if(a&&window.innerWidth<=860)a.scrollIntoView({inline:"center",block:"nearest"});
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",show);
+$$("[data-pager]").forEach(p=>{
+  const id=p.closest(".view").dataset.view, i=VIEWS.findIndex(v=>v.id===id);
+  const prev=VIEWS[i-1], next=VIEWS[i+1];
+  p.innerHTML=(prev?`<a class="btn ghost" href="#${prev.id}">← ${prev.t}</a>`:"<span></span>")+(next?`<a class="btn" href="#${next.id}">${next.t} →</a>`:"");
+});
+$$("[data-done]").forEach(b=>{const id=b.closest(".view").dataset.view;if(done.has(id)){b.textContent="Läbitud ✓";b.disabled=true}b.addEventListener("click",()=>markDone(id))});
+$$("[data-notes]").forEach(n=>{
+  const id=n.closest(".view").dataset.view;n.className="notes";
+  n.innerHTML=`<label for="notes-${id}">Minu märkmed</label><textarea id="notes-${id}" placeholder="Kirjuta siia oma märkmed. Need salvestuvad selles brauseris."></textarea>`;
+  const ta=$("textarea",n);ta.value=store.get("pohi_notes_"+id,"");
+  let t;ta.addEventListener("input",()=>{clearTimeout(t);t=setTimeout(()=>store.set("pohi_notes_"+id,ta.value),300)});
+});
+$("#themeBtn").addEventListener("click",()=>{const r=document.documentElement;const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.dataset.theme=dark?"light":"dark";store.set("pohi_theme",r.dataset.theme)});
+const th=store.get("pohi_theme",null);if(th)document.documentElement.dataset.theme=th;
+
+/* ================= 1 RAAMISTIK ================= */
+const CHRONO=[
+ ["1945","<b>ÜRO</b> asutatakse."],
+ ["1948","<b>Inimõiguste ülddeklaratsioon</b> võetakse vastu ÜRO Peaassambleel 10. detsembril."],
+ ["1949","<b>Euroopa Nõukogu</b> asutatakse."],
+ ["1950","<b>EIÕK</b> allkirjastatakse Roomas (jõustub 1953)."],
+ ["1951","<b>Pagulasseisundi konventsioon</b> Genfis; 1967 protokoll kaotab selle ajalise ja geograafilise piirangu."],
+ ["1966","<b>Kaks pakti</b>: kodaniku- ja poliitiliste õiguste pakt ning majanduslike, sotsiaalsete ja kultuuriliste õiguste pakt (jõustuvad 1976)."],
+ ["1984","<b>Piinamisvastane konventsioon</b> (jõustub 1987)."],
+ ["1989","<b>Lapse õiguste konventsioon</b> (jõustub 1990)."],
+ ["1991","Eesti saab <b>ÜRO</b> liikmeks 17. septembril.","ee"],
+ ["1992","Eesti <b>põhiseadus</b> võetakse vastu rahvahääletusel 28. juunil.","ee"],
+ ["1993","Eesti saab <b>Euroopa Nõukogu</b> liikmeks.","ee"],
+ ["1996","<b>EIÕK</b> jõustub Eesti suhtes; eestlased saavad pöörduda EIK-sse.","ee"],
+ ["2000","<b>EL põhiõiguste harta</b> kuulutatakse välja (veel mittesiduv)."],
+ ["2004","Eesti saab <b>Euroopa Liidu</b> liikmeks 1. mail. Samal aastal allkirjastatakse Euroopa põhiseaduse leping, mis ei jõustu kunagi.","ee"],
+ ["2009","<b>Lissaboni leping</b>: harta muutub õiguslikult siduvaks."]
+];
+$("#chrono").innerHTML=CHRONO.map(c=>`<div class="yr ${c[2]||""}"><span class="y">${c[0]}</span><span class="ln"><i></i></span><div class="ev">${c[1]}</div></div>`).join("");
+
+/* ================= 2.1 SEISUND ================= */
+const PERSONS=[
+ {id:"ee",l:"Eesti kodanik",intl:"kod",eu:"own",note:"Eesti tunnustab teda oma kodanikuna. Tal on õigus elada Eestis ja riigil on kohustus seda võimaldada. Teda ei tohi Eestist välja saata (PS § 36)."},
+ {id:"fi",l:"Soome kodanik Eestis",intl:"val",eu:"other",note:"Rahvusvahelise õiguse järgi on ta Eestis ikkagi välismaalane, kuid EL õigus annab talle soodsama õigusliku seisundi kui kolmanda riigi kodanikule (nt vaba liikumise õigus)."},
+ {id:"ua",l:"Ukraina kodanik Eestis",intl:"val",eu:"third",note:"Välismaalane, kes ei ole ühegi EL liikmesriigi kodanik, ehk kolmanda riigi kodanik. Eesti võib suveräänselt kontrollida tema saabumist ja viibimist, kuid välislepingutest tulenevate piirangutega."},
+ {id:"st",l:"Kodakondsuseta isik",intl:"val",eu:"third",note:"Teda ei tunnusta oma kodanikuna ükski riik, seega on ta Eesti jaoks välismaalane ega ole ühegi EL liikmesriigi kodanik. PS § 9 järgi on tal põhiseaduse igaühe õigused samamoodi nagu kodanikul."}
+];
+const INTL=[{id:"kod",l:"Kodanik",s:"isik, keda riik tunnustab oma kodanikuna"},{id:"val",l:"Välismaalane",s:"isik, keda konkreetne riik ei tunnusta oma kodanikuna"}];
+const EUC=[{id:"own",l:"EL liikmesriigi kodanik",s:"selle liikmesriigi oma kodanik"},{id:"other",l:"Teise EL liikmesriigi kodanik",s:"rahvusvaheliselt välismaalane, kuid soodsama seisundiga"},{id:"third",l:"Kolmanda riigi kodanik",s:"välismaalane, kes ei ole ühegi EL liikmesriigi kodanik"}];
+function setPerson(p){
+  $$("#personChips .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.id===p.id));
+  $("#lensIntl").innerHTML=INTL.map(c=>`<div class="cat ${c.id===p.intl?"on":""}">${c.l}<small>${c.s}</small></div>`).join("");
+  $("#lensEu").innerHTML=EUC.map(c=>`<div class="cat ${c.id===p.eu?"on":""}">${c.l}<small>${c.s}</small></div>`).join("");
+  $("#personNote").textContent=p.note;linkTerms($("#personNote"));
+}
+PERSONS.forEach(p=>{const b=document.createElement("button");b.className="chip";b.type="button";b.dataset.id=p.id;b.textContent=p.l;b.addEventListener("click",()=>setPerson(p));$("#personChips").appendChild(b)});
+
+/* ================= 2.3 PÕHISEADUS ================= */
+const PS=[
+ {n:"§ 1",t:"Iseseisev demokraatlik vabariik",x:"Eesti on iseseisev ja sõltumatu demokraatlik vabariik, kus kõrgeima riigivõimu kandja on rahvas. Eesti iseseisvus ja sõltumatus on aegumatu ning võõrandamatu.",p:"Võim kuulub rahvale."},
+ {n:"§ 3",t:"Seaduslikkus ja rahvusvaheline õigus",x:"Riigivõimu teostatakse üksnes põhiseaduse ja sellega kooskõlas olevate seaduste alusel. Rahvusvahelise õiguse üldtunnustatud põhimõtted ja normid on Eesti õigussüsteemi lahutamatu osa.",p:"Riik tegutseb ainult seaduse alusel ja rahvusvaheline õigus kehtib ka Eestis."},
+ {n:"§ 9",t:"Õigused ka välismaalastele",x:"Põhiseaduses loetletud kõigi ja igaühe õigused, vabadused ja kohustused on võrdselt nii Eesti kodanikel kui ka Eestis viibivatel välisriikide kodanikel ja kodakondsuseta isikutel.",p:"„Igaühe“ õigused ei sõltu kodakondsusest."},
+ {n:"§ 10",t:"Loetelu ei ole ammendav",x:"Käesolevas peatükis loetletud õigused, vabadused ja kohustused ei välista muid õigusi, vabadusi ega kohustusi, mis tulenevad põhiseaduse mõttest või on sellega kooskõlas ja vastavad inimväärikuse ning sotsiaalse ja demokraatliku õigusriigi põhimõtetele.",p:"Õigusi võib olla rohkem, kui on kirja pandud."},
+ {n:"§ 11",t:"Õiguste piiramine",x:"Õigusi ja vabadusi tohib piirata ainult kooskõlas põhiseadusega. Need piirangud peavad olema demokraatlikus ühiskonnas vajalikud ega tohi moonutada piiratavate õiguste ja vabaduste olemust.",p:"Piirata võib, aga ainult vajalikul määral ja nii, et õiguse tuum säilib."},
+ {n:"§ 12",t:"Võrdsus ja diskrimineerimiskeeld",x:"Kõik on seaduse ees võrdsed. Kedagi ei tohi diskrimineerida rahvuse, rassi, nahavärvuse, soo, keele, päritolu, usutunnistuse, poliitiliste või muude veendumuste, samuti varalise ja sotsiaalse seisundi või muude asjaolude tõttu.",p:"Loetelu on avatud: „või muude asjaolude tõttu“."},
+ {n:"§ 14",t:"Kes õigusi tagab",x:"Õiguste ja vabaduste tagamine on seadusandliku, täidesaatva ja kohtuvõimu ning kohalike omavalitsuste kohustus.",p:"Kõik võimuharud ja omavalitsused vastutavad."},
+ {n:"§ 15",t:"Õigus kohtusse pöörduda",x:"Igaühel on õigus pöörduda oma õiguste ja vabaduste rikkumise korral kohtusse. Igaüks võib oma kohtuasja läbivaatamisel nõuda mis tahes asjassepuutuva seaduse, muu õigusakti või toimingu põhiseadusevastaseks tunnistamist.",p:"Kohtutee on alati avatud."},
+ {n:"§ 18",t:"Piinamise keeld",x:"Kedagi ei tohi piinata, julmalt või väärikust alandavalt kohelda ega karistada. Kedagi ei tohi tema vaba tahte vastaselt allutada meditsiini- ega teaduskatsetele.",p:"Piiranguklauslit ei ole: keeld on absoluutne."},
+ {n:"§ 26",t:"Perekonna- ja eraelu",x:"Igaühel on õigus perekonna- ja eraelu puutumatusele. Riigiasutused, kohalikud omavalitsused ja nende ametiisikud ei tohi kellegi perekonna- ega eraellu sekkuda muidu, kui seaduses sätestatud juhtudel ja korras tervise, kõlbluse, avaliku korra või teiste inimeste õiguste ja vabaduste kaitseks, kuriteo tõkestamiseks või kurjategija tabamiseks.",p:"Sekkuda võib seaduse alusel ja loetletud eesmärkidel."},
+ {n:"§ 27",t:"Perekond riigi kaitse all",x:"Perekond rahva püsimise ja kasvamise ning ühiskonna alusena on riigi kaitse all. Abikaasad on võrdõiguslikud. Vanematel on õigus ja kohustus kasvatada oma lapsi ja hoolitseda nende eest. Seadus sätestab vanemate ja laste kaitse. Perekond on kohustatud hoolitsema oma abivajavate liikmete eest.",p:"Riik kaitseb perekonda; perekonnal on ka kohustusi."},
+ {n:"§ 40",t:"Usuvabadus",x:"Igaühel on südametunnistuse-, usu- ja mõttevabadus. Kuulumine kirikutesse ja usuühingutesse on vaba. Riigikirikut ei ole. Igaühel on vabadus nii üksinda kui ka koos teistega, avalikult või eraviisiliselt täita usutalitusi, kui see ei kahjusta avalikku korda, tervist ega kõlblust.",p:"Riigikirikut ei ole; usutalituste piir on avalik kord, tervis ja kõlblus."},
+ {n:"§ 55",t:"Välismaalaste kohustus",x:"Eestis viibivad teiste riikide kodanikud ja kodakondsuseta isikud on kohustatud järgima Eesti põhiseaduslikku korda.",p:"Õigustega käivad kaasas kohustused."}
+];
+$("#psCards").innerHTML=PS.map((p,i)=>`<div class="pcard"><button class="phead" type="button" aria-expanded="false" aria-controls="psb${i}"><span class="pn real">PS ${p.n}</span><span class="pn mask">§ ?</span><span class="pt">${p.t}</span></button><div class="pbody" id="psb${i}" hidden><span>${p.x}</span><span class="plain">${p.p}</span></div></div>`).join("");
+function togglePS(card,open){const b=$(".phead",card);open=open===undefined?b.getAttribute("aria-expanded")!=="true":open;b.setAttribute("aria-expanded",open);card.classList.toggle("open",open);$(".pbody",card).hidden=!open}
+$$("#psCards .pcard").forEach(c=>$(".phead",c).addEventListener("click",()=>togglePS(c)));
+$("#psHide").addEventListener("click",e=>{const b=e.currentTarget,on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);$("#psCards").classList.toggle("hidenum",on);if(on){$$("#psCards .pcard").forEach(c=>togglePS(c,false));$("#psOpenAll").setAttribute("aria-pressed","false")}});
+$("#psOpenAll").addEventListener("click",e=>{const b=e.currentTarget,on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);$$("#psCards .pcard").forEach(c=>togglePS(c,on))});
+const SCHEME=[
+ {k:"1",h:"Kaitseala",q:"Kas olukord kuulub mõne põhiõiguse kaitsealasse?",x:"Leia õigus ja säte (vt maatriks). Kontrolli ka, kas õigus kuulub sellele isikule: „igaühe“ õigus kehtib ka välismaalasele (PS § 9)."},
+ {k:"2",h:"Riive",q:"Kas riik sekkus õiguse kasutamisse?",x:"Riive on iga riigi tegevus, mis takistab või raskendab õiguse kasutamist: kinnipidamine, väljasaatmine, keeld, jälgimine. Riive ei ole veel rikkumine."},
+ {k:"3",h:"Absoluutne?",q:"Kas õigust tohib üldse piirata?",x:"Kui õigus on absoluutne (piinamise ja alandava kohtlemise keeld), on iga riive rikkumine ja kontroll lõpeb siin."},
+ {k:"4",h:"Seaduslik alus",q:"Kas riivel on seaduses alus?",x:"Põhiõigusi tohib piirata ainult seaduse alusel (PS § 3, § 11; HMS § 3 lg 1). Kontrolli ka, et otsuse tegi pädev asutus õiges menetluses ja vormis."},
+ {k:"5",h:"Legitiimne eesmärk",q:"Mille nimel piirati?",x:"Eesmärk peab olema põhiseaduse või konventsiooniga lubatud: julgeolek, avalik kord, tervis, kõlblus, teiste õigused (nt PS § 26, EIÕK art 8 lg 2)."},
+ {k:"6",h:"Proportsionaalsus",q:"Kas meede on kohane, vajalik ja mõõdukas?",x:"Kohane: aitab eesmärki saavutada. Vajalik: leebemat ja sama tõhusat meedet ei ole. Mõõdukas: kasu eesmärgile kaalub üles kahju isikule (HMS § 3 lg 2)."},
+ {k:"7",h:"Olemus säilib",q:"Kas õiguse tuum jääb alles?",x:"Piirang ei tohi moonutada piiratava õiguse olemust (PS § 11 teine lause). Kui õigusest ei jää praktiliselt midagi järele, on piirang lubamatu."}
+];
+SCHEME.forEach((s,i)=>{const b=document.createElement("button");b.type="button";b.className="sstep";b.dataset.i=i;b.innerHTML=`<span class="k">Samm ${s.k}</span><span style="font-family:var(--f-display);font-weight:600">${s.h}</span>`;b.addEventListener("click",()=>setScheme(i));$("#scheme").appendChild(b)});
+function setScheme(i){$$("#scheme .sstep").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.i===i));const s=SCHEME[i];$("#schemeInfo").innerHTML=`<span class="eyebrow">Samm ${s.k} · ${s.h}</span><p style="font-family:var(--f-display);font-weight:600">${s.q}</p><p class="small">${s.x}</p>`;linkTerms($("#schemeInfo"))}
+
+/* ================= 2.4 KAITSE ================= */
+const LADDER=[
+ {id:"vaie",lv:"Riigisisene · 1",h:"Vaidemenetlus",d:"Riigi tehtud otsuse või toimingu seaduslikkus vaadatakse üle täitevvõimu siseselt.",x:"Täitevvõim kontrollib iseennast: kiire ja tasuta viis lasta otsus üle vaadata ilma kohtuta. Vaide saab esitada 30 päeva jooksul. Vaie ei ole üldjuhul kohustuslik: isik võib pöörduda kohe ka kohtusse."},
+ {id:"kohus",lv:"Riigisisene · 2",h:"Kohtumenetlus",d:"Riigi tehtud otsuse või toimingu seaduslikkust kontrollib kohus.",x:"Haldusasjades halduskohus, edasi ringkonnakohus ja Riigikohus. PS § 15 tagab igaühele õiguse pöörduda kohtusse; EL harta II-107 (art 47) tagab õiguse tõhusale õiguskaitsevahendile ja õiglasele kohtulikule arutamisele."},
+ {gate:true},
+ {id:"uro",lv:"Rahvusvaheline",h:"ÜRO komiteed",d:"ÜRO mehhanism komiteede kaudu.",x:"Eeldus: riigisisene kohtumenetlus on läbitud. Näiteks ÜRO Inimõiguste Komitee (kodaniku- ja poliitiliste õiguste pakt) ja Piinamisvastane Komitee. Komitee seisukoht ei ole kohtuotsus, kuid riigid arvestavad sellega.",intl:true},
+ {id:"eik",lv:"Rahvusvaheline",h:"Euroopa Inimõiguste Kohus",d:"Euroopa Nõukogu mehhanism Euroopa Inimõiguste Kohtu kaudu.",x:"Eeldus: riigisisene kohtumenetlus on läbitud ja kaebus esitatakse 4 kuu jooksul. Kohus kontrollib EIÕK ja selle protokollide järgimist. Otsus on riigile siduv ja kohus võib välja mõista õiglase hüvitise.",intl:true}
+];
+function setRung(id){
+  $$("#ladder .rung").forEach(r=>r.setAttribute("aria-pressed",r.dataset.id===id));
+  const r=LADDER.find(x=>x.id===id);
+  $("#ladderInfo").innerHTML=`<span class="eyebrow">${r.lv}</span><h3>${r.h}</h3><p>${r.d}</p><p class="small muted">${r.x}</p>`;linkTerms($("#ladderInfo"));
+}
+LADDER.forEach(r=>{
+  if(r.gate){const g=document.createElement("div");g.className="gate";g.textContent="riigisisene kohtumenetlus läbitud";$("#ladder").appendChild(g);return}
+  const b=document.createElement("button");b.type="button";b.className="rung"+(r.intl?" intl":"");b.dataset.id=r.id;
+  b.innerHTML=`<span class="lv">${r.lv}</span><span class="ttl">${r.h}</span><span class="small muted">${r.d}</span>`;
+  b.addEventListener("click",()=>setRung(r.id));$("#ladder").appendChild(b);
+});
+
+/* ================= 3 MAATRIKS ================= */
+const INSTR=[
+ {id:"iouod",s:"IÕÜD",l:"Inimõiguste ülddeklaratsioon",org:"ÜRO"},
+ {id:"kporp",s:"KPÕRP",l:"Kodaniku- ja poliitiliste õiguste pakt",org:"ÜRO"},
+ {id:"pvk",s:"PVK",l:"Piinamisvastane konventsioon",org:"ÜRO"},
+ {id:"pag",s:"Pagulas­konv.",l:"Pagulasseisundi konventsioon",org:"ÜRO"},
+ {id:"lok",s:"LÕK",l:"Lapse õiguste konventsioon",org:"ÜRO"},
+ {id:"eiok",s:"EIÕK",l:"Inimõiguste ja põhivabaduste kaitse konventsioon",org:"Euroopa Nõukogu"},
+ {id:"harta",s:"EL harta",l:"Liidu põhiõiguste harta",org:"EL"},
+ {id:"ps",s:"PS",l:"Eesti Vabariigi põhiseadus",org:"Eesti"}
+];
+const RIGHTS=[
+ {id:"vaar",t:"Inimväärikus ja piinamiskeeld",n:"3.1",st:["red","Absoluutne"],ins:"Üheski materjali tekstis ei ole piiranguklauslit. Piinamise ja alandava kohtlemise keeld ei luba erandeid. Siia kuulub ka refoulement'i keeld (piinamisvastane konventsioon art 3) ja meditsiini- ning teaduskatsete keeld ilma vaba nõusolekuta."},
+ {id:"vab",t:"Vabadus ja isikupuutumatus",n:"3.2",st:["amber","Ammendavad erandid"],ins:"Vabaduse võtmine on lubatud ainult seaduses kindlaksmääratud korras ja ainult konventsioonis loetletud juhtudel, näiteks punkt f: loata sissesõidu vältimiseks või väljasaatmiseks. Kinnipeetul on õigus teada põhjusi ja nõuda kiiret kohtulikku kontrolli."},
+ {id:"vord",t:"Võrdne kohtlemine",n:"3.3",st:["blue","Diskrimineerimiskeeld"],ins:"Tunnuste loetelud lõpevad alati avatult: „või muu seisund“, „või muu asjaolu“, „või muude asjaolude tõttu“. EL harta lisab otse kodakondsuse alusel diskrimineerimise keelu. EIÕK art 14 ei ole iseseisev: see kehtib koos mõne teise konventsiooni õigusega."},
+ {id:"pere",t:"Perekonnaelu",n:"3.4",st:["green","Piiratav"],ins:"Sekkumine on lubatud, kui see on seaduses ette nähtud ja demokraatlikus ühiskonnas vajalik loetletud eesmärkidel (EIÕK art 8 lg 2, PS § 26). Väljasaatmine võib riivata perekonnaelu, kui isikul on riigis pere. Lapse õiguste konventsioon nõuab perekonna taasühinemise avalduste lahendamist positiivselt, humaanselt ja kiiresti."},
+ {id:"usk",t:"Usuvabadus",n:"3.5",st:["green","Piiratav (kuulutamine)"],ins:"Usu omamine ja muutmine on vaba. Piirata saab ainult usu või veendumuste kuulutamist (EIÕK art 9 lg 2) või usutalitusi, kui need kahjustavad avalikku korda, tervist või kõlblust (PS § 40)."}
+];
+const MK={
+ vaar:{iouod:[["Art 5","IÕÜD|5"]],kporp:[["Art 7","KPÕRP|7"]],pvk:[["Art 3 lg 1","PVK|3"]],pag:[["Art 1 A, C, F","PAG|1","pagulane"]],eiok:[["Art 3","EIÕK|3"]],harta:[["II-61 (art 1)","HARTA|1"],["II-63 (art 3)","HARTA|3"],["II-64 (art 4)","HARTA|4"]],ps:[["§ 18","PS|18"]]},
+ vab:{eiok:[["Art 5","EIÕK|5","valjasaatmine"],["Prot 4 art 4","P4|4"],["Prot 7 art 1","P7|1"]],harta:[["II-66 (art 6)","HARTA|6"],["II-107 (art 47)","HARTA|47"]],ps:[["§ 20",null,null,"Igaühel on õigus vabadusele ja isikupuutumatusele. (Materjalis on selle lõigu all kogemata korratud § 18 teksti; isikuvabaduse põhisäte on § 20.)"]]},
+ vord:{iouod:[["Art 2","IÕÜD|2"]],kporp:[["Art 26","KPÕRP|26"]],eiok:[["Art 14","EIÕK|14"]],harta:[["II-81 (art 21)","HARTA|21"]],ps:[["§ 12","PS|12"]]},
+ pere:{iouod:[["Art 12","IÕÜD|12"],["Art 16","IÕÜD|16"]],kporp:[["Art 17","KPÕRP|17"]],lok:[["Art 9","LÕK|9"],["Art 10","LÕK|10"]],eiok:[["Art 8","EIÕK|8"]],harta:[["II-67 (art 7)","HARTA|7"],["Art 9","HARTA|9"]],ps:[["§ 26","PS|26"],["§ 27","PS|27"]]},
+ usk:{iouod:[["Art 18","IÕÜD|18"]],kporp:[["Art 18","KPÕRP|18"]],eiok:[["Art 9","EIÕK|9"]],harta:[["Art 10","HARTA|10"]],ps:[["§ 40","PS|40"]]}
+};
+const M={};Object.entries(MK).forEach(([r,o])=>{M[r]={};Object.entries(o).forEach(([i,arr])=>{M[r][i]=arr.map(([lab,k,link,x])=>({r:lab,x:x||lawText(k),link}))})});
+const KEYMAP={iouod:"IÕÜD",kporp:"KPÕRP",pvk:"PVK",pag:"PAG",lok:"LÕK",eiok:"EIÕK",harta:"HARTA",ps:"PS"};
+let seenCells=new Set(store.get("pohi_seen",[]));
+function renderMatrix(){
+  const t=$("#matrix");
+  let h=`<thead><tr><th style="text-align:left">Õigus</th>${INSTR.map(i=>`<th title="${i.l}">${i.s}<small>${i.org}</small></th>`).join("")}</tr></thead><tbody>`;
+  RIGHTS.forEach(r=>{
+    h+=`<tr><th><span class="muted small" style="font-family:var(--f-mono);font-weight:400">${r.n}</span> ${r.t}<br><span class="stamp ${r.st[0]}">${r.st[1]}</span></th>`;
+    INSTR.forEach(i=>{
+      const c=M[r.id][i.id];
+      h+=c?`<td><button class="mcell ${seenCells.has(r.id+"|"+i.id)?"seen":""}" data-r="${r.id}" data-i="${i.id}" aria-pressed="false">${c.map(a=>a.r.replace(/ \(.*\)/,"")).join("<br>")}</button></td>`:`<td><span class="mempty">—</span></td>`;
+    });
+    h+="</tr>";
+  });
+  t.innerHTML=h+"</tbody>";
+  $$(".mcell",t).forEach(b=>b.addEventListener("click",()=>openCell(b.dataset.r,b.dataset.i)));
+}
+function openCell(rid,iid){
+  $$("#matrix .mcell").forEach(b=>{const on=b.dataset.r===rid&&b.dataset.i===iid;b.setAttribute("aria-pressed",on);if(on)b.classList.add("seen")});
+  seenCells.add(rid+"|"+iid);store.set("pohi_seen",[...seenCells]);
+  const r=RIGHTS.find(x=>x.id===rid),i=INSTR.find(x=>x.id===iid);
+  const p=$("#mpanel");
+  p.innerHTML=`<div class="row between"><div><span class="eyebrow">${i.org} · ${r.t}</span><h3>${i.l}</h3></div><span class="stamp ${r.st[0]}">${r.st[1]}</span></div>
+   <div class="arts">${M[rid][iid].map(a=>`<div class="quote" data-la="${KEYMAP[iid]}"${iid==="ps"?' data-lp="PS"':""}><span class="src">${i.s} ${a.r}</span><p>${a.x}</p>${a.link?`<a class="btn ghost" style="align-self:flex-start" href="#${a.link}">Vaata interaktiivselt →</a>`:""}</div>`).join("")}</div>
+   <div class="insight"><b>Mida selle õiguse juures tähele panna.</b> ${r.ins}</div>
+   <div class="row"><span class="small muted">Sama õigus teistes aktides:</span>${INSTR.filter(x=>M[rid][x.id]&&x.id!==iid).map(x=>`<button class="chip" data-r="${rid}" data-i="${x.id}">${x.s}</button>`).join("")}</div>
+   <a class="btn ghost" style="align-self:flex-start" href="#vordlus" id="toCmp">Võrdle kõiki akte kõrvuti →</a>`;
+  $$(".chip",p).forEach(b=>b.addEventListener("click",()=>openCell(b.dataset.r,b.dataset.i)));
+  $("#toCmp",p).addEventListener("click",()=>setCmp(rid));
+  linkTerms(p);
+}
+renderMatrix();
+
+/* ================= 3.1 PAGULANE ================= */
+const A=[{id:"a1",l:"Põhjendatud kartus tagakiusamise ees"},{id:"a2",l:"Põhjus: rass, usk, rahvus, sotsiaalsesse gruppi kuulumine või poliitilised veendumused"},{id:"a3",l:"Viibib väljaspool kodakondsusjärgset riiki (kodakondsuseta isik: väljaspool endist asukohariiki)"},{id:"a4",l:"Ei suuda või kartuse tõttu ei taha saada selle riigi kaitset (või sinna tagasi pöörduda)"}];
+const C=[{id:"c1",l:"(1) on vabatahtlikult uuesti võtnud vastu kodakondsusjärgse riigi kaitse"},{id:"c2",l:"(2) on kaotatud kodakondsuse vabatahtlikult uuesti omandanud"},{id:"c3",l:"(3) on omandanud uue kodakondsuse ja on uue riigi kaitse all"},{id:"c4",l:"(4) on vabatahtlikult naasnud riiki, kust lahkus tagakiusamiskartuse tõttu"},{id:"c5",l:"(5)–(6) pagulaseks tunnistamise asjaolud on lakanud olemast"}];
+const F=[{id:"f1",l:"a) rahuvastane, sõja- või inimsusevastane kuritegu"},{id:"f2",l:"b) raske mittepoliitiline kuritegu enne varjupaigamaale lubamist"},{id:"f3",l:"c) ÜRO eesmärkide ja põhimõtetega vastuolus olevad teod"}];
+const CASES=[
+ {l:"Ajakirjanik",t:"Ajakirjanik kirjutas valitsust kritiseerivaid artikleid. Teda on korduvalt kinni peetud ja ähvardatud. Ta põgenes Eestisse ja kardab, et kodumaal teda vangistatakse. Kodumaa võimud on ise tagakiusajad.",s:["a1","a2","a3","a4"]},
+ {l:"Töö otsija",t:"Isik lahkus kodumaalt, sest seal on kõrge tööpuudus ja madalad palgad. Teda ei ole keegi ähvardanud ega taga kiusanud. Ta soovib Eestis paremat tööd.",s:["a3"]},
+ {l:"Naasja",t:"Isik tunnistati Eestis pagulaseks, sest teda kiusati kodumaal taga usu pärast. Kahe aasta pärast sõitis ta omal soovil kodumaale tagasi ja elab seal.",s:["a1","a2","a3","a4","c4"]},
+ {l:"Sõjakuritegu",t:"Isik kardab põhjendatult tagakiusamist rahvuse tõttu ja viibib väljaspool kodumaad. Samas on kaalukaid põhjusi arvata, et ta osales relvakonfliktis tsiviilisikute tapmises, mis on sõjakuritegu.",s:["a1","a2","a3","a4","f1"]},
+ {l:"Oma valik",t:"Märgi asjaolud ise ja vaata, milline on tulemus.",s:[]}
+];
+let caseState=new Set();
+function renderChecks(el,list){el.innerHTML=list.map(c=>`<label class="check"><input type="checkbox" id="pg-${c.id}" data-id="${c.id}" ${caseState.has(c.id)?"checked":""}><span>${c.l}</span></label>`).join("");$$("input",el).forEach(i=>i.addEventListener("change",()=>{i.checked?caseState.add(i.dataset.id):caseState.delete(i.dataset.id);verdict()}))}
+function verdict(){
+  const aAll=A.every(x=>caseState.has(x.id)), c=C.find(x=>caseState.has(x.id)), f=F.find(x=>caseState.has(x.id));
+  let st,txt;
+  if(!aAll){const miss=A.filter(x=>!caseState.has(x.id)).map(x=>x.l.split(/[:(]/)[0].trim().toLowerCase());st=["amber","Ei ole pagulane"];txt=`Art 1A tingimused ei ole täidetud. Puudu: ${miss.join("; ")}.`}
+  else if(f){st=["red","Välistatud"];txt=`Konventsiooni ei kohaldata art 1F alusel (${f.l.slice(0,2)}), kuigi A-tingimused on täidetud. Refoulement'i keeld piinamisvastase konventsiooni art 3 alusel kehtib siiski edasi.`}
+  else if(c){st=["amber","Kaitse lõppenud"];txt=`Konventsiooni ei kohaldata enam art 1C alusel: ${c.l.replace(/^\(\d\)(–\(\d\))? /,"")}.`}
+  else{st=["green","Pagulane"];txt="Kõik art 1A tingimused on täidetud ning lõppemise või välistamise aluseid ei ole. Isik on pagulane konventsiooni tähenduses."}
+  $("#verdict").innerHTML=`<span class="stamp ${st[0]}" style="font-size:.85rem">${st[1]}</span><p class="vt">${txt}</p>`;
+}
+function setCase(i){
+  $$("#caseChips .chip").forEach((c,j)=>c.setAttribute("aria-pressed",j===i));
+  caseState=new Set(CASES[i].s);$("#caseText").textContent=CASES[i].t;linkTerms($("#caseText").parentElement);
+  renderChecks($("#stepA"),A);renderChecks($("#stepC"),C);renderChecks($("#stepF"),F);verdict();
+}
+CASES.forEach((c,i)=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=c.l;b.addEventListener("click",()=>setCase(i));$("#caseChips").appendChild(b)});
+
+/* ================= 3.2 VÄLJASAATMINE ================= */
+const TL=[
+ {k:"1",h:"Kinnipidamise alus",c:"EIÕK art 5 lg 1 p f",x:"Vabaduse võib võtta ainult seaduses kindlaksmääratud korras, näiteks seaduslik kinnipidamine, et vältida isiku loata sissesõitu riiki või võtta meetmeid tema väljasaatmiseks või -andmiseks."},
+ {k:"2",h:"Teavitamine",c:"EIÕK art 5 lg 2",x:"Igale vahistatule teatatakse talle arusaadavas keeles viivitamata tema vahistamise põhjused ja kõik tema vastu esitatud süüdistused. Vajadusel tuleb kasutada tõlki."},
+ {k:"3",h:"Kohtulik kontroll",c:"EIÕK art 5 lg 4 · harta II-107",x:"Kinnipeetul on õigus taotleda menetlust, milles kohus otsustab kiires korras kinnipidamise õiguspärasuse ja korraldab vabastamise, kui kinnipidamine on õigusvastane. Harta tagab tõhusa õiguskaitsevahendi, esindatuse ja vajadusel tasuta õigusabi."},
+ {k:"4",h:"Väljasaatmise otsus",c:"Prot 7 art 1 lg 1",x:"Riigis õiguspäraselt elavat välismaalast võib välja saata ainult seaduse alusel tehtud otsuse täitmiseks. Tal on õigus: a) esitada põhjendusi väljasaatmise vastu; b) asja uuesti läbivaatamisele; c) olla esindatud pädeva võimukandja ees."},
+ {k:"!",h:"Erand: kiire väljasaatmine",c:"Prot 7 art 1 lg 2",x:"Enne punktide a–c õiguste kasutamist võib välismaalase välja saata, kui see on vajalik avaliku korra huvides või põhjendatud riigi julgeoleku huvidega. Õigused tuleb tagada hiljem."},
+ {k:"✕",h:"Kollektiivne väljasaatmine",c:"Prot 4 art 4",x:"Keelatud on välismaalaste sunniviisiline kollektiivne väljasaatmine. Iga juhtumit tuleb käsitleda eraldi.",stop:true},
+ {k:"✕",h:"Sihtriigis ähvardab piinamine",c:"PVK art 3 · EIÕK art 3",x:"Kedagi ei tohi välja või tagasi saata ega välja anda riiki, kus on põhjendatud alus arvata, et teda võib ähvardada piinamine. Erandeid ei ole.",stop:true}
+];
+$("#timeline").innerHTML=TL.map((e,i)=>`<div class="ev${e.stop?" stop":""}${i===0?" open":""}"><span class="pin"><i>${e.k}</i></span><div class="body"><div class="row" style="gap:8px"><button class="evh" type="button" aria-expanded="${i===0}">${e.h}</button><span class="cite">${e.c}</span></div><div class="more"${i===0?"":" hidden"}>${e.x}</div></div></div>`).join("");
+$$("#timeline .ev").forEach(ev=>$(".evh",ev).addEventListener("click",e=>{const b=e.currentTarget,o=b.getAttribute("aria-expanded")==="true";b.setAttribute("aria-expanded",!o);ev.classList.toggle("open",!o);$(".more",ev).hidden=o}));
+
+/* ================= HMS ================= */
+const HMSP=[
+ {c:"§ 3",h:"Õiguste kaitse",x:"Põhiõigusi ja muid subjektiivseid õigusi võib piirata ainult seaduse alusel. Halduse õigusakt ja toiming peab olema kohane, vajalik ning proportsionaalne seatud eesmärgi suhtes."},
+ {c:"§ 4",h:"Kaalutlusõigus",x:"Seadusega antud volitus kaaluda otsustuse tegemist või valida erinevate otsustuste vahel. Teostada volituse piires, eesmärgipäraselt ja õiguse üldpõhimõtete kohaselt, arvestades olulisi asjaolusid ja kaaludes põhjendatud huve."},
+ {c:"§ 5",h:"Vormivabadus ja eesmärgipärasus",x:"Vormi määrab haldusorgan, kui seadus ei sätesta teisiti. Menetlus on eesmärgipärane, efektiivne, lihtne ja kiire. Tasu ainult seaduse alusel. Viivituseta, tähtaja jooksul. Normide muutumisel kohaldatakse menetluse alguses kehtinud norme. Elektrooniline asjaajamine võrdub kirjalikuga."},
+ {c:"§ 6",h:"Uurimispõhimõte",x:"Haldusorgan peab ise välja selgitama asjas olulised asjaolud ja vajadusel koguma tõendeid oma algatusel."},
+ {c:"§ 7",h:"Avalikkus ja andmekaitse",x:"Haldusmenetlus on avalik. Riigi- ja ärisaladus ning asutusesiseseks kasutamiseks tunnistatud andmed hoitakse saladuses. Isikuandmeid töödeldakse isikuandmete kaitse üldmääruse ja seaduse järgi."}
+];
+$("#hmsPrinciples").innerHTML=HMSP.map(p=>`<div class="sheet block"><div class="row between"><h4>${p.h}</h4><span class="cite">HMS ${p.c}</span></div><p class="small">${p.x}</p></div>`).join("");
+const MEAS=[
+ {l:"Ei tee midagi",r:[false,null,null],n:"Meede ei aita eesmärki saavutada, nii et see ei ole kohane. Edasi ei ole mõtet kontrollida."},
+ {l:"Kohustus end regulaarselt ametis registreerida",r:[true,true,true],n:"Aitab eesmärki saavutada, on kinnipidamisest oluliselt leebem ja koormus on eesmärgiga tasakaalus. Kui sellest piisab, on see proportsionaalne valik."},
+ {l:"Kinnipidamine kohe, kuigi isik täidab kõiki kohustusi",r:[true,false,null],n:"Kinnipidamine aitab eesmärki saavutada, aga kui leebem meede (registreerimine) on sama tõhus, ei ole see vajalik."},
+ {l:"Kinnipidamine, kui isik on varem korduvalt peitu läinud",r:[true,true,true],n:"Kui leebemad meetmed on osutunud ebatõhusaks, võib kinnipidamine olla vajalik ja mõõdukas. Alus peab olema seaduses (EIÕK art 5 lg 1 p f) ja kinnipeetul on õigus kiirele kohtulikule kontrollile."}
+];
+const PSTEPS=[["1 · Kohasus","Kas meede aitab eesmärki saavutada?"],["2 · Vajalikkus","Kas leebem meede ei oleks sama tõhus?"],["3 · Mõõdukus","Kas kasu eesmärgile kaalub üles riive isikule?"]];
+function setMeasure(i){
+  $$("#measures .chip").forEach((c,j)=>c.setAttribute("aria-pressed",j===i));
+  const m=MEAS[i];
+  $("#propSteps").innerHTML=PSTEPS.map((s,j)=>{const v=m.r[j];return `<div class="pstep ${v===true?"pass":v===false?"fail":""}"><span class="k">${s[0]}</span><span class="small">${s[1]}</span><b style="font-family:var(--f-display)">${v===true?"Jah":v===false?"Ei":"Ei kontrollita"}</b></div>`}).join("");
+  $("#propNote").textContent=m.n;linkTerms($("#propNote"));
+}
+MEAS.forEach((m,i)=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=m.l;b.addEventListener("click",()=>setMeasure(i));$("#measures").appendChild(b)});
+
+/* ================= HKMS ================= */
+const PARTIES=[
+ {id:"kaebaja",cls:"p-kaebaja",h:"Kaebaja",c:"§ 16",x:"Isik või isikute ühendus, kes on esitanud halduskohtule kaebuse. Isikute ühendus saab olla kaebaja vaid seaduses sätestatud juhul."},
+ {id:"vastustaja",cls:"p-vastustaja",h:"Vastustaja",c:"§ 17",x:"Vabariigi Valitsus, peaminister, minister, riigiasutus, kohaliku omavalitsuse üksus, avalik-õiguslik juriidiline isik või avalikku ülesannet enda nimel täitev eraisik, kelle tegevuse peale kaebus on esitatud. Riigiasutus on vastustaja ka siis, kui vaidlustatakse tema ametiisiku tegevust. Kohtulahendiga tekitatud kahju puhul on vastustaja Justiitsministeerium; seadusega või seaduse andmata jätmisega tekitatud kahju puhul ministeerium, kelle valitsemisalasse seadus kuulub."},
+ {id:"kolmas",cls:"p-kolmas",h:"Kolmas isik",c:"§ 20",x:"Kohus kaasab isiku, kes ei ole pool, kui kohtulahendiga võidakse otsustada tema õiguste või kohustuste üle. Tal on pooltega võrdsed õigused ja kohustused."},
+ {id:"kaasatud",cls:"p-kaasatud",h:"Kaasatud haldusorgan",c:"§ 24",x:"Kohus võib kaasata arvamuse andmiseks haldusorgani, kes teostab vastustaja üle järelevalvet, kelle ülesandeid vaidlus puudutab, kes andis või oleks pidanud andma arvamuse või kooskõlastuse, või kelle teave aitab asja lahendada. Tal ei ole õigusi, mis on ainult poolte ja kolmanda isiku omad."}
+];
+$("#court").innerHTML=`<div class="party judge"><span class="ttl">Halduskohus</span><span class="cite">HKMS § 2</span></div>`;
+PARTIES.forEach(p=>{const b=document.createElement("button");b.type="button";b.className="party "+p.cls;b.dataset.id=p.id;b.innerHTML=`<span class="cite" style="align-self:flex-start">${p.c}</span><span class="ttl">${p.h}</span>`;b.addEventListener("click",()=>setParty(p.id));$("#court").appendChild(b)});
+function setParty(id){$$("#court .party[data-id]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===id));const p=PARTIES.find(x=>x.id===id);$("#courtInfo").innerHTML=`<div class="row between"><h3>${p.h}</h3><span class="cite">HKMS ${p.c}</span></div><p>${p.x}</p>${id==="kaebaja"||id==="vastustaja"?'<p class="small muted">Kaebaja ja vastustaja on koos pooled (§ 15 lg 1 p 1).</p>':""}`;linkTerms($("#courtInfo"))}
+
+/* ================= KAASUS ================= */
+const CS=[
+ {q:"Kes on isik?",h:"Määra õiguslik seisund.",m:"seisund",a:"X on välismaalane, täpsemalt kolmanda riigi kodanik. PS § 9 järgi on tal kõik põhiseaduse igaühe õigused. Kuna ta ei viibi riigis õiguspäraselt, ei laiene talle protokolli nr 7 art 1 menetluslikud tagatised."},
+ {q:"Milliseid õigusi olukord puudutab?",h:"Leia maatriksist õigused ja sätted.",m:"maatriks",a:"Vabadus (EIÕK art 5, PS § 20), piinamise keeld ja refoulement (PVK art 3, EIÕK art 3, PS § 18), perekonnaelu (EIÕK art 8, PS § 26, LÕK art 9) ja võimalik pagulasstaatus (pagulasseisundi konventsioon art 1A)."},
+ {q:"Kas õigus on absoluutne?",h:"Absoluutse õiguse riive on alati rikkumine.",m:"maatriks",a:"Piinamise keeld on absoluutne. Kui on põhjendatud alus arvata, et X-i ähvardab kodumaal piinamine, ei tohi teda sinna saata, olenemata sellest, kas ta on pagulane."},
+ {q:"Kas piiravatel meetmetel on alus ja eesmärk?",h:"Seaduslik alus ja legitiimne eesmärk.",m:"pohiseadus",a:"Kinnipidamine loata sissesõidu või väljasaatmise tagamiseks on lubatud EIÕK art 5 lg 1 p f alusel, kui see toimub seaduses kindlaksmääratud korras (Eestis VSS). Eesmärk, riigi kontroll välismaalaste viibimise üle, on legitiimne."},
+ {q:"Kas meetmed on proportsionaalsed?",h:"Kohane, vajalik, mõõdukas.",m:"hms",a:"Tuleb kaaluda, kas leebem meede (nt registreerimiskohustus) oleks piisanud. Perekonnaelu riive puhul tuleb arvestada abikaasa ja lapse elamist Eestis ning lapse huve (LÕK)."},
+ {q:"Kas menetlust järgiti?",h:"HMS põhimõtted ja menetluslikud tagatised.",m:"valjasaatmine",a:"Kinnipidamise põhjusi ei selgitatud arusaadavas keeles: see rikub EIÕK art 5 lg 2. Uurimispõhimõtte (HMS § 6) järgi pidi amet ise välja selgitama piinamisohu kodumaal ja võimaliku pagulasstaatuse. Isik tuli ära kuulata."},
+ {q:"Kuhu saab isik pöörduda?",h:"Õiguskaitsevahendid järjekorras.",m:"kaitse",a:"Kinnipidamise õiguspärasust peab kohus kontrollima kiires korras (EIÕK art 5 lg 4). Ettekirjutuse saab vaidlustada vaidega või kaebusega halduskohtusse, edasi ringkonnakohtusse ja Riigikohtusse. Alles seejärel saab ta pöörduda EIK-sse."}
+];
+$("#caseScheme").innerHTML=CS.map((s,i)=>`<div class="csi"><span class="n">${i+1}</span><div class="ask"><b style="font-family:var(--f-display);font-size:1.05rem">${s.q}</b><span class="small muted">${s.h}</span><a class="small" href="#${s.m}" style="color:var(--accent);font-family:var(--f-display);font-weight:600;text-decoration:none">Ava moodul: ${VIEWS.find(v=>v.id===s.m).t} →</a></div><div class="ans"><span class="eyebrow">Näidiskaasuses</span><span>${s.a}</span></div></div>`).join("");
+
+/* ================= SÕNASTIK ================= */
+const coll=new Intl.Collator("et");
+const GLA={pagk:"PAG",pagul:"PAG",pvk:"PVK",piin:"PVK",eiok:"EIÕK",kporp:"KPÕRP",harta:"HARTA",ioud:"IÕÜD",lok:"LÕK",taasyh:"LÕK",klon:"HARTA",eugeen:"HARTA",hea:"HARTA",tasutaoa:"HARTA",isikup:"HARTA"};
+function renderGloss(q){
+  q=(q||"").trim().toLowerCase();
+  const items=GL.filter(g=>!q||g.t.toLowerCase().includes(q)||g.d.toLowerCase().includes(q)).sort((a,b)=>coll.compare(a.t,b.t));
+  let h="",L="";
+  items.forEach(g=>{const l=g.t[0].toUpperCase();if(l!==L&&!q){h+=`<div class="letter">${l}</div>`;L=l}
+    h+=`<div class="gitem"${GLA[g.k]?` data-la="${GLA[g.k]}"`:""}><h4>${g.t}</h4><span>${g.d}</span>${g.v?`<a href="#${g.v}">${VIEWS.find(v=>v.id===g.v).t} →</a>`:""}</div>`});
+  $("#gloss").innerHTML=h||`<p class="muted">Ühtegi mõistet ei leitud. Proovi lühemat otsingusõna.</p>`;linkRefs($("#gloss"));linkAbbr($("#gloss"));
+}
+renderGloss();
+$("#glossSearch").addEventListener("input",e=>renderGloss(e.target.value));
+
+/* ================= VÕRDLUS ================= */
+const CMP={
+ vaar:{cols:["iouod","kporp","pvk","eiok","harta","ps"],rows:[
+  ["Piinamise keeld",{iouod:["y"],kporp:["y"],pvk:["y","konventsiooni põhieesmärk"],eiok:["y"],harta:["y","art 4 (II-64)"],ps:["y"]}],
+  ["Sõna „julm“ kohtlemise kohta",{iouod:["y"],kporp:["y"],pvk:["y","pealkirjas"],eiok:["n","„ebainimlik või alandav“"],harta:["n","„ebainimlik või alandav“"],ps:["y","„julmalt“"]}],
+  ["Katsete keeld ilma nõusolekuta",{iouod:["n"],kporp:["y","meditsiinilised ja teaduslikud"],pvk:["n"],eiok:["n"],harta:["y","art 3: vaba ja teadlik nõusolek"],ps:["y","meditsiini- ja teaduskatsed"]}],
+  ["Väljasaatmise keeld piinamisohu korral",{iouod:["n"],kporp:["n"],pvk:["y","art 3: ka väljaandmine"],eiok:["p","tekstis ei ole, EIK tuletab art 3-st"],harta:["x","art 19 lg 2"],ps:["n"]}],
+  ["Inimväärikus eraldi õigusena",{iouod:["n"],kporp:["n"],pvk:["n"],eiok:["n"],harta:["y","art 1: puutumatu"],ps:["p","§ 10: tõlgenduspõhimõte"]}],
+  ["Bioeetika: eugeenika, kloonimine, tulu inimkehast",{iouod:["n"],kporp:["n"],pvk:["n"],eiok:["n"],harta:["y","art 3 lg 2"],ps:["n"]}],
+  ["Piiranguklausel",{iouod:["t","puudub"],kporp:["t","puudub"],pvk:["t","puudub"],eiok:["t","puudub"],harta:["t","puudub"],ps:["t","puudub"]}]
+ ],ins:"Kõik aktid keelavad piinamise ja ükski ei luba seda piirata. Erinevus on ulatuses: KPÕRP, harta ja PS lisavad katsete keelu, harta lisab bioeetika ja inimväärikuse eraldi õigusena ning väljasaatmise keelu sõnaselgelt sätestab materjalis ainult piinamisvastane konventsioon."},
+ vab:{cols:["eiok","harta","ps"],rows:[
+  ["Õigus vabadusele ja isikupuutumatusele",{eiok:["y","art 5 lg 1"],harta:["y","art 6 (II-66)"],ps:["y","§ 20"]}],
+  ["Vabaduse võtmise lubatud alused",{eiok:["y","ammendav loetelu, sh p f: loata sissesõit ja väljasaatmine"],harta:["n","tekst ei loetle"],ps:["x","§ 20 lg 2"]}],
+  ["Põhjustest teavitamine arusaadavas keeles",{eiok:["y","art 5 lg 2: viivitamata"],harta:["n"],ps:["x","§ 21"]}],
+  ["Kohtulik kontroll",{eiok:["y","art 5 lg 4: kiires korras"],harta:["y","art 47: tõhus õiguskaitsevahend"],ps:["p","§ 15: üldine kohtusse pöördumise õigus"]}],
+  ["Esindaja ja tasuta õigusabi",{eiok:["n"],harta:["y","art 47"],ps:["n"]}],
+  ["Kollektiivse väljasaatmise keeld",{eiok:["y","protokoll nr 4 art 4"],harta:["x","art 19 lg 1"],ps:["n"]}],
+  ["Väljasaatmise menetlustagatised",{eiok:["y","protokoll nr 7 art 1, ainult õiguspäraselt elavale"],harta:["n"],ps:["n"]}]
+ ],ins:"EIÕK on siin kõige üksikasjalikum: see loetleb vabaduse võtmise alused ammendavalt ja annab kinnipeetule konkreetsed tagatised. Harta lisab õiguse tõhusale õiguskaitsevahendile ja tasuta õigusabile. PS § 20 teksti materjalis ei ole (seal on kogemata korratud § 18); üksikasjad on PS § 20 ja § 21 lõigetes."},
+ vord:{cols:["iouod","kporp","eiok","harta","ps"],rows:[
+  ["Seaduse ees võrdsus",{iouod:["x","art 7"],kporp:["y","art 26"],eiok:["n"],harta:["x","art 20"],ps:["y","§ 12 lg 1"]}],
+  ["Kus keeld kehtib",{iouod:["t","deklaratsiooni õiguste puhul"],kporp:["t","igal pool, iseseisev keeld"],eiok:["t","ainult konventsiooni õiguste kasutamisel"],harta:["t","EL õiguse rakendamisel"],ps:["t","kõigis olukordades"]}],
+  ["Tunnuste loetelu on avatud",{iouod:["y","„või muust seisundist“"],kporp:["y","„või muu asjaolu“"],eiok:["y","„või muu seisund“"],harta:["y","„sealhulgas“"],ps:["y","„või muude asjaolude tõttu“"]}],
+  ["Rahvusvähemusse kuulumine",{iouod:["n"],kporp:["n"],eiok:["y"],harta:["y"],ps:["n"]}],
+  ["Geneetilised omadused, puue, vanus, seksuaalne sättumus",{iouod:["n"],kporp:["n"],eiok:["n"],harta:["y"],ps:["n"]}],
+  ["Kodakondsuse alusel diskrimineerimise keeld",{iouod:["n"],kporp:["n"],eiok:["n"],harta:["y","art 21 lg 2"],ps:["n"]}],
+  ["Riigi kohustus keelata diskrimineerimine seadusega",{iouod:["n"],kporp:["y"],eiok:["n"],harta:["n"],ps:["n"]}],
+  ["Territooriumi staatuse järgi eristamise keeld",{iouod:["y"],kporp:["n"],eiok:["n"],harta:["n"],ps:["n"]}]
+ ],ins:"Suurim erinevus on ulatuses. EIÕK art 14 ei ole iseseisev: sellele saab tugineda ainult koos mõne teise konventsiooni õigusega. KPÕRP art 26 ja PS § 12 kehtivad kõigis olukordades. Harta tunnuste loetelu on kõige pikem ja keelab otse ka kodakondsuse alusel diskrimineerimise."},
+ pere:{cols:["iouod","kporp","lok","eiok","harta","ps"],rows:[
+  ["Era- ja perekonnaelu austamine",{iouod:["y","art 12"],kporp:["y","art 17"],lok:["p","lapse ja vanemate suhted"],eiok:["y","art 8"],harta:["y","art 7 (II-67)"],ps:["y","§ 26"]}],
+  ["Kodu ja kirjavahetus või sõnumid",{iouod:["y"],kporp:["y"],lok:["n"],eiok:["y"],harta:["y"],ps:["x","§ 33 ja § 43"]}],
+  ["Au ja reputatsioon",{iouod:["y"],kporp:["y"],lok:["n"],eiok:["n"],harta:["n"],ps:["n"]}],
+  ["Millal tohib sekkuda",{iouod:["t","mitte „meelevaldselt“"],kporp:["t","mitte „meelevaldselt või ebaseaduslikult“"],lok:["t","eraldamine vanematest ainult lapse huvides, kohtus kontrollitav"],eiok:["t","seaduse alusel, demokraatlikus ühiskonnas vajalik, loetletud eesmärgil"],harta:["t","tekstis ei ole (art 52 üldklausel)"],ps:["t","seaduses sätestatud juhtudel ja korras, loetletud eesmärgil"]}],
+  ["Õigus abielluda ja perekonda luua",{iouod:["y","art 16"],kporp:["n"],lok:["n"],eiok:["x","art 12"],harta:["y","art 9, siseriikliku õiguse järgi"],ps:["n"]}],
+  ["Perekond riigi kaitse all",{iouod:["y","art 16 lg 3"],kporp:["n"],lok:["n"],eiok:["n"],harta:["n"],ps:["y","§ 27"]}],
+  ["Abikaasade võrdõiguslikkus",{iouod:["y","art 16 lg 1"],kporp:["n"],lok:["n"],eiok:["n"],harta:["n"],ps:["y","§ 27"]}],
+  ["Perekonna taasühinemine",{iouod:["n"],kporp:["n"],lok:["y","art 10: positiivselt, humaanselt, kiiresti"],eiok:["n"],harta:["n"],ps:["n"]}]
+ ],ins:"Piirangu sõnastus muutub ÜRO aktidest Euroopa ja Eesti aktideni üha täpsemaks: IÕÜD keelab ainult meelevaldse sekkumise, KPÕRP lisab ebaseadusliku, EIÕK ja PS nimetavad konkreetsed eesmärgid ja nõuded. Välismaalase väljasaatmisel tuleb alati kontrollida, kas see riivab tema perekonnaelu Eestis."},
+ usk:{cols:["iouod","kporp","eiok","harta","ps"],rows:[
+  ["Mõtte-, südametunnistuse- ja usuvabadus",{iouod:["y"],kporp:["y"],eiok:["y"],harta:["y"],ps:["y"]}],
+  ["Vabadus usku muuta",{iouod:["y"],kporp:["p","„omada või vastu võtta omal valikul“"],eiok:["y"],harta:["y"],ps:["n","tekstis ei ole"]}],
+  ["Usu kuulutamine üksi või koos, avalikult või eraviisiliselt",{iouod:["y"],kporp:["y"],eiok:["y"],harta:["y"],ps:["y","usutalitused"]}],
+  ["Piiranguklausel",{iouod:["n"],kporp:["x","art 18 lg 3"],eiok:["y","lg 2: ainult kuulutamist, seadusega"],harta:["x","art 52 üldklausel"],ps:["y","avalik kord, tervis, kõlblus"]}],
+  ["Riigikirikut ei ole, ühingutesse kuulumine vaba",{iouod:["n"],kporp:["n"],eiok:["n"],harta:["n"],ps:["y","§ 40"]}],
+  ["Õigus keelduda sõjaväeteenistusest",{iouod:["n"],kporp:["n"],eiok:["n"],harta:["y","art 10 lg 2"],ps:["n"]}]
+ ],ins:"Sisemine vabadus (mõelda, uskuda, usku muuta) on kõigis aktides piiramatu. Piirata saab ainult usu väljendamist: EIÕK art 9 lg 2 ja PS § 40 ütlevad selle otse välja. PS on ainus, mis keelab riigikiriku, ja harta ainus, mis mainib keeldumist sõjaväeteenistusest."}
+};
+const LIM=new RegExp("(?<!\\p{L})(välja arvatud|seaduses kindlaksmääratud korras|kooskõlas seadusega|üksnes seadusega|seaduses sätestatud juhtudel ja korras|seadusega ette nähtud|seaduse alusel tehtud otsuse|demokraatlikus ühiskonnas vajalik\\p{L}*|meelevaldselt|ebaseaduslikult|avaliku korra|avalikku korda|riigi julgeoleku|riikliku julgeoleku|ühiskondliku turvalisuse|tervise|tervist|kõlbluse|kõlblust|kaasinimeste õiguste|teiste inimeste õiguste|teiste õiguste|kui see ei kahjusta|siseriiklike õigusaktide kohaselt)(?!\\p{L})","giu");
+let cmpRight="vaar",cmpHidden=new Set();
+const MARK={y:"✓",p:"≈",x:"?",n:"—"};
+function setCmp(rid){cmpRight=rid;cmpHidden.clear();renderCmp()}
+function renderCmp(){
+  const r=RIGHTS.find(x=>x.id===cmpRight),c=CMP[cmpRight];
+  $$("#cmpRights .chip").forEach(b=>b.setAttribute("aria-pressed",b.dataset.r===cmpRight));
+  $("#cmpTitle").textContent=r.n+" "+r.t;
+  $("#cmpStamp").innerHTML=`<span class="stamp ${r.st[0]}">${r.st[1]}</span>`;
+  const ins=c.cols.map(id=>INSTR.find(i=>i.id===id));
+  $("#cmpTable").innerHTML=`<thead><tr><th>Mille poolest erinevad</th>${ins.map(i=>`<th>${i.s}</th>`).join("")}</tr></thead><tbody>${c.rows.map(([lab,cells])=>`<tr><th>${lab}</th>${c.cols.map(id=>{const v=cells[id]||["n"];const da=` data-la="${KEYMAP[id]}"${id==="ps"?' data-lp="PS"':""}`;if(v[0]==="t")return `<td${da}>${v[1]}</td>`;return `<td${da}><i class="mk ${v[0]}" aria-label="${{y:"on",p:"osaliselt",x:"mujal",n:"ei ole"}[v[0]]}">${MARK[v[0]]}</i>${v[1]?`<span class="nt">${v[0]==="x"?v[1]+" (materjalis ei ole)":v[1]}</span>`:""}</td>`}).join("")}</tr>`).join("")}</tbody>`;
+  $("#cmpInsight").innerHTML=`<b>Kokkuvõte.</b> ${c.ins}`;linkTerms($("#cmpInsight"));linkRefs($("#cmpTable"));linkAbbr($("#cmpTable"));
+  // column chips
+  const avail=INSTR.filter(i=>M[cmpRight][i.id]);
+  $("#cmpCols").innerHTML=`<span class="small muted">Veerud:</span>`+avail.map(i=>`<button class="chip" data-i="${i.id}" aria-pressed="${!cmpHidden.has(i.id)}">${i.s}</button>`).join("");
+  $$("#cmpCols .chip").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.i;if(cmpHidden.has(id))cmpHidden.delete(id);else{if(avail.filter(i=>!cmpHidden.has(i.id)).length<=1)return;cmpHidden.add(id)}renderCmp()}));
+  const shown=avail.filter(i=>!cmpHidden.has(i.id));
+  const box=$("#cmpTexts");
+  box.innerHTML=shown.map(i=>`<div class="sheet cmpcol"><div class="hd"><span class="eyebrow">${i.org}</span><b>${i.l}</b></div>${M[cmpRight][i.id].map(a=>`<div class="quote" data-la="${KEYMAP[i.id]}"${i.id==="ps"?' data-lp="PS"':""}><span class="src">${i.s} ${a.r}</span><p>${a.x.replace(LIM,'<mark class="lim">$1</mark>')}</p></div>`).join("")}</div>`).join("");
+  box.classList.toggle("hl",$("#cmpHl").getAttribute("aria-pressed")==="true");
+  linkTerms(box);
+}
+RIGHTS.forEach(r=>{const b=document.createElement("button");b.className="chip";b.type="button";b.dataset.r=r.id;b.textContent=r.t;b.addEventListener("click",()=>setCmp(r.id));$("#cmpRights").appendChild(b)});
+$("#cmpHl").addEventListener("click",e=>{const b=e.currentTarget,on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);$("#cmpTexts").classList.toggle("hl",on)});
+
+const CARDS=["kodak","valism","kolmanda","hea","prop","oigusk","ootus","vaie","refoul","pagul","hmenet","kaalut","uurim","hakt","kaebaja","kolmas","kaasho","riive"].map(k=>GMAP[k]);
+$("#flashgrid").innerHTML=CARDS.map(c=>`<button class="flash" type="button" aria-pressed="false"><span class="in"><span class="face front"><span class="eyebrow">Mõiste</span><b>${c.t}</b></span><span class="face back">${c.d}</span></span></button>`).join("");
+$$(".flash").forEach(f=>f.addEventListener("click",()=>f.setAttribute("aria-pressed",f.getAttribute("aria-pressed")!=="true")));
+/* ================= INIT ================= */
+$$(".view").forEach(v=>{if(v.dataset.view!=="sonastik"&&v.dataset.view!=="kaardid")linkTerms(v)});
+setPerson(PERSONS[1]);setScheme(0);setRung("vaie");openCell("vaar","eiok");setCase(0);setMeasure(2);setParty("vastustaja");renderCmp();
+show();
+})();
+</script>
+
+</body></html>
